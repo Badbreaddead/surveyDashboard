@@ -1,45 +1,67 @@
 import React, {Component, PropTypes} from 'react';
-import { Table, Popconfirm } from 'antd';
+import { Table, Popconfirm, Button } from 'antd';
 import EditableCell from './Cell';
+import NestedTable from './NestedTable';
 
 export default class EditableTable extends React.Component {
+
 	constructor(props) {
 		super(props);
 		this.columns = [{
-			title: 'name',
-			dataIndex: 'name',
-			width: '25%',
-			render: (text, record, index) => this.renderColumns(this.state.data, index, 'name', text),
+			title: 'ID',
+			dataIndex: 'id',
+			width: '10%',
+			render: (text, record, index) => this.renderColumns(this.state.data, index, 'id', text),
 		}, {
-			title: 'age',
-			dataIndex: 'age',
-			width: '15%',
-			render: (text, record, index) => this.renderColumns(this.state.data, index, 'age', text),
+			title: 'Question',
+			dataIndex: 'question',
+			width: '35%',
+			render: (text, record, index) => this.renderColumns(this.state.data, index, 'question', text),
 		}, {
-			title: 'address',
-			dataIndex: 'address',
-			width: '40%',
-			render: (text, record, index) => this.renderColumns(this.state.data, index, 'address', text),
+			title: 'Question type',
+			dataIndex: 'questionType',
+			width: '12%',
+			render: (text, record, index) => this.renderColumns(this.state.data, index, 'questionType', text),
 		}, {
-			title: 'operation',
-			dataIndex: 'operation',
+			title: 'Operations',
+			dataIndex: 'operations',
 			render: (text, record, index) => {
-				const { editable } = this.state.data[index].name;
+				const { editable } = this.state.data[index].question;
+				const { data } = this.state;
 				return (
 					<div className="editable-row-operations">
 						{
-							editable ?
-								<span>
-                  <a onClick={() => this.editDone(index, 'save')}>Save</a>
-                  <Popconfirm title="Sure to cancel?" onConfirm={() => this.editDone(index, 'cancel')}>
-                    <a>Cancel</a>
-                  </Popconfirm>
-                </span>
-								:
-								<span>
-                  <a onClick={() => this.edit(index)}>Edit</a>
-                </span>
+						editable ?
+							<span>
+	                            <a onClick={() => this.editDone(index, 'save')}>Save</a>
+	                            <Popconfirm
+		                            title="Sure to cancel?"
+		                            onConfirm={() => this.editDone(index, 'cancel')}
+		                            okText="OK"
+		                            cancelText="NO"
+	                            >
+	                                <a>Cancel</a>
+	                            </Popconfirm>
+                            </span>
+						:
+							<span>
+								<a onClick={() => this.edit(index)}>Edit</a>
+                            </span>
 						}
+						{
+						data.length > 1 ?
+							<Popconfirm
+								title="Sure to delete?"
+								onConfirm={() => this.onDelete(index)}
+								okText="OK"
+								cancelText="NO"
+							>
+								<a href="#">Delete</a>
+							</Popconfirm>
+						:
+							null
+						}
+						<Button className="editable-add-btn" onClick={() => this.handleAdd(index)}>Add</Button>
 					</div>
 				);
 			},
@@ -47,20 +69,47 @@ export default class EditableTable extends React.Component {
 		this.state = {
 			data: [{
 				key: '0',
-				name: {
-					editable: false,
-					value: 'Edward King 0',
+				id: {
+					value: '123321123',
 				},
-				age: {
+				question: {
 					editable: false,
-					value: '32',
+					value: 'How are you?1',
 				},
-				address: {
-					value: 'London, Park Lane no. 0',
+				questionType: {
+					editable: false,
+					value: 'Own answer and options',
+				},
+			}, {
+				key: '1',
+				id: {
+					value: '123321123',
+				},
+				question: {
+					editable: false,
+					value: 'How are you?2',
+				},
+				questionType: {
+					editable: false,
+					value: 'Own answer and options',
+				},
+			}, {
+				key: '2',
+				id: {
+					value: '123321123',
+				},
+				question: {
+					editable: false,
+					value: 'How are you?3',
+				},
+				questionType: {
+					editable: false,
+					value: 'Own answer and options',
 				},
 			}],
 		};
 	}
+
 	renderColumns(data, index, key, text) {
 		const { editable, status } = data[index][key];
 		if (typeof editable === 'undefined') {
@@ -73,11 +122,19 @@ export default class EditableTable extends React.Component {
 			status={status}
 		/>);
 	}
+
+	onDelete = (index) => {
+		const data = [...this.state.data];
+		data.splice(index, 1);
+		this.setState({ data });
+	}
+
 	handleChange(key, index, value) {
 		const { data } = this.state;
 		data[index][key].value = value;
 		this.setState({ data });
 	}
+
 	edit(index) {
 		const { data } = this.state;
 		Object.keys(data[index]).forEach((item) => {
@@ -87,6 +144,7 @@ export default class EditableTable extends React.Component {
 		});
 		this.setState({ data });
 	}
+
 	editDone(index, type) {
 		const { data } = this.state;
 		Object.keys(data[index]).forEach((item) => {
@@ -103,6 +161,39 @@ export default class EditableTable extends React.Component {
 			});
 		});
 	}
+
+	handleAdd(index) {
+		const { data } = this.state;
+		const dataCopyLeft = JSON.parse(JSON.stringify(data)).slice(0, index + 1);
+		const dataCopyRight = JSON.parse(JSON.stringify(data)).slice(index + 1);
+		const addingElem = {
+			key: (index + 1).toString(),
+			id: {
+				value: '123321123',
+			},
+			question: {
+				editable: true,
+				value: 'How are you?new',
+			},
+			questionType: {
+				editable: true,
+				value: 'Own answer and options',
+			},
+		};
+		dataCopyLeft.push(addingElem);
+		dataCopyRight.map(elem => elem.key = (parseInt(elem.key) + 1).toString());
+		const newData = dataCopyLeft.concat(dataCopyRight);
+		this.setState({
+			data: newData,
+		});
+	}
+
+	expandedRowRender() {
+		return (
+			<NestedTable />
+		);
+	};
+
 	render() {
 		const { data } = this.state;
 		const dataSource = data.map((item) => {
@@ -112,7 +203,13 @@ export default class EditableTable extends React.Component {
 			});
 			return obj;
 		});
+		debugger
 		const columns = this.columns;
-		return <Table bordered dataSource={dataSource} columns={columns} />;
+		return <Table
+			expandedRowRender={this.expandedRowRender}
+			bordered
+			dataSource={dataSource}
+			columns={columns}
+		/>;
 	}
 }

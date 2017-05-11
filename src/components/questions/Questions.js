@@ -8,6 +8,7 @@ class MainPage extends Component {
     render() {
         return (
             <div>
+	            <h1>Survey Dashboard</h1>
                 <Table />
             </div>
         );
