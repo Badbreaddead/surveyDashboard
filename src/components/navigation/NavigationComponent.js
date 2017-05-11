@@ -4,6 +4,7 @@ import { Layout, Menu, Breadcrumb, Icon } from 'antd';
 const { Header, Content, Footer, Sider } = Layout;
 const SubMenu = Menu.SubMenu;
 
+
 class NavigationComponent extends React.Component {
     constructor(props) {
         super(props);
@@ -25,20 +26,12 @@ class NavigationComponent extends React.Component {
 
     handleMenu = (e) => {
         switch (e.key) {
-            case 'organizers': {
-                browserHistory.push('/organizers');
+            case 'questions': {
+                browserHistory.push('/');
                 break;
             }
-            case 'new_tickets': {
-                browserHistory.push('/new_tickets');
-                break;
-            }
-            case 'new_tickets_by_num': {
-                browserHistory.push('/new_tickets_by_num');
-                break;
-            }
-            case 'new_csv': {
-                browserHistory.push('/new_csv');
+            case 'logout': {
+                browserHistory.push('/login');
                 break;
             }
         }
@@ -57,35 +50,23 @@ class NavigationComponent extends React.Component {
                     width={190}
                     trigger={null}
                 >
-                    <div className="logo" onClick={this.handleLogo}>{!collapsed? 'TicketChain': <Icon type="home" />}</div>
+                    <div className="logo" onClick={this.handleLogo}>{!collapsed? 'Survey Dashboard': <Icon type="home" />}</div>
                     <Menu
-                        theme="dark" mode={this.state.mode}
+                        mode={this.state.mode}
                         style={{ height: '100%' }}
                         onClick={this.handleMenu}
                         selectedKeys={[selectedKey]}
                     >
-                        <Menu.Item key="organizers">
+                        <Menu.Item key="questions">
                           <span>
-                            <Icon type="user" />
-                            <span className="nav-text">Организаторы</span>
+                            <Icon type="question-circle-o" />
+                            <span className="nav-text">Questions</span>
                           </span>
                         </Menu.Item>
-                        <Menu.Item key="new_tickets">
+                        <Menu.Item key="logout">
                           <span>
-                            <Icon type="file" />
-                            <span className="nav-text">Создание бланков</span>
-                          </span>
-                        </Menu.Item>
-                        <Menu.Item key="new_tickets_by_num">
-                          <span>
-                            <Icon type="file" />
-                            <span className="nav-text">Создание бланков (кол-во)</span>
-                          </span>
-                        </Menu.Item>
-                        <Menu.Item key="new_csv">
-                          <span>
-                            <Icon type="file" />
-                            <span className="nav-text">Загрузка CSV файла</span>
+                            <Icon type="logout" />
+                            <span className="nav-text">Logout</span>
                           </span>
                         </Menu.Item>
                     </Menu>
@@ -99,7 +80,7 @@ class NavigationComponent extends React.Component {
                         </div>
                     </div>
                     <Footer style={{ textAlign: 'center' }}>
-                        TicketChain ©2017 Created by Chain.cloud
+                        Survey Dashboard
                     </Footer>
                 </Layout>
             </Layout>
