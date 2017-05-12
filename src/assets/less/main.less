@@ -1,25 +1,5 @@
-.main {
-  min-height: 480px;
-  .logo {
-    float: left;
-  }
-  .label {
-    padding-top: 72px;
-    font-size: 36px;
-    display: inline-block;
-  }
-  .menu {
-    margin-top: 320px;
-  }
-  a {
-    color: rgba(0, 0, 0, 0.65);
-    padding-top: 24px;
-    font-size: 24px;
-  }
-}
-
 .logo {
-  padding-left: 24px;
+  padding-left: 8px;
   color: rgba(255, 255, 255, 0.67);
   font-size: 16px;
   line-height: 42px;
@@ -30,13 +10,15 @@
   }
 }
 
-.trigger {
-  font-size: 18px;
-  line-height: 64px;
-  padding: 0 16px;
-  cursor: pointer;
-  transition: color .3s;
-  &:hover {
-    color: #108ee9;
-  }
+.menu {
+  padding-top: 20px;
+  height: 100%;
+}
+
+.menu-item:hover {
+  background-color: #f7f7f7;
+}
+
+.menu-item-active {
+  background-color: #cccccc;
 }

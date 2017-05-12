@@ -14,7 +14,6 @@ class Login extends Component {
     };
 
     render() {
-        debugger
         const { getFieldDecorator } = this.props.form;
         return (
 	        <div>

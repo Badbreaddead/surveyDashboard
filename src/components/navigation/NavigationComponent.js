@@ -1,8 +1,7 @@
 import React, {Component, PropTypes} from 'react';
 import { browserHistory } from 'react-router'
-import { Layout, Menu, Breadcrumb, Icon } from 'antd';
-const { Header, Content, Footer, Sider } = Layout;
-const SubMenu = Menu.SubMenu;
+import { Layout, Menu, Icon } from 'antd';
+const { Sider } = Layout;
 
 
 class NavigationComponent extends React.Component {
@@ -47,41 +46,36 @@ class NavigationComponent extends React.Component {
         return (
             <Layout>
                 <Sider
-                    width={190}
+                    width={150}
                     trigger={null}
                 >
                     <div className="logo" onClick={this.handleLogo}>{!collapsed? 'Survey Dashboard': <Icon type="home" />}</div>
                     <Menu
                         mode={this.state.mode}
-                        style={{ height: '100%' }}
                         onClick={this.handleMenu}
                         selectedKeys={[selectedKey]}
+                        className="menu"
                     >
-                        <Menu.Item key="questions">
+                        <Menu.Item className={selectedKey === '' ? 'menu-item menu-item-active' : 'menu-item'} key="questions">
                           <span>
                             <Icon type="question-circle-o" />
-                            <span className="nav-text">Questions</span>
+                            <span>Questions</span>
                           </span>
                         </Menu.Item>
-                        <Menu.Item key="logout">
+                        <Menu.Item className="menu-item" key="logout">
                           <span>
                             <Icon type="logout" />
-                            <span className="nav-text">Logout</span>
+                            <span>Logout</span>
                           </span>
                         </Menu.Item>
                     </Menu>
                 </Sider>
                 <Layout>
-                    <Header style={{ background: '#ECECEC', padding: 0 }}>
-                    </Header>
                     <div className="page-wrapper">
                         <div className="content-wrapper">
                             {this.props.children}
                         </div>
                     </div>
-                    <Footer style={{ textAlign: 'center' }}>
-                        Survey Dashboard
-                    </Footer>
                 </Layout>
             </Layout>
         );
