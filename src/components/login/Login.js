@@ -1,5 +1,6 @@
 import React, {Component, PropTypes} from 'react';
-import { Form, Icon, Input, Button, Checkbox } from 'antd';
+import { browserHistory } from 'react-router'
+import { Form, Icon, Input, Button } from 'antd';
 const FormItem = Form.Item;
 
 class Login extends Component {
@@ -16,8 +17,8 @@ class Login extends Component {
     render() {
         const { getFieldDecorator } = this.props.form;
         return (
-	        <div>
-		        <h1>Survey dashboard</h1>
+	        <div className="login">
+		        <h1 className="login-title">Survey dashboard</h1>
 		        <Form onSubmit={this.handleSubmit} className="login-form">
 			        <FormItem>
 				        {getFieldDecorator('userName', {
@@ -34,13 +35,7 @@ class Login extends Component {
 				        )}
 			        </FormItem>
 			        <FormItem>
-				        {getFieldDecorator('remember', {
-					        valuePropName: 'checked',
-					        initialValue: true,
-				        })(
-					        <Checkbox>Remember me</Checkbox>
-				        )}
-				        <Button type="primary" htmlType="submit" className="login-form-button">
+				        <Button htmlType="submit" className="login-form-button" onClick={() => browserHistory.push('/')}>
 					        Log in
 				        </Button>
 			        </FormItem>
