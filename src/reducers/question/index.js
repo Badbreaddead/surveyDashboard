@@ -1,7 +1,7 @@
 import {
 	GET_QUESTIONS,
 	DELETE_QUESTION,
-	CHANGE_QUESTION_NAME,
+	UPDATE_QUESTION,
 	SAVE_QUESTION,
 } from '../../actions/question';
 
@@ -56,7 +56,7 @@ function questionReducer(state = initialState, action) {
 				isFetching: false,
 			});
 		}
-		case `${CHANGE_QUESTION_NAME}`: {
+		case `${UPDATE_QUESTION}`: {
 			const initQuestions = [...state.initQuestions];
 
 			let index;
@@ -66,6 +66,7 @@ function questionReducer(state = initialState, action) {
 				}
 			});
 			initQuestions[index] = action.payload;
+
 			return Object.assign({}, state, {
 				initQuestions,
 			});

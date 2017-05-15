@@ -6,7 +6,7 @@ import {openNotification} from '../notification';
 
 export const GET_QUESTIONS = 'GET_QUESTIONS';
 export const DELETE_QUESTION = 'DELETE_QUESTION';
-export const CHANGE_QUESTION_NAME = 'CHANGE_QUESTION_NAME';
+export const UPDATE_QUESTION = 'UPDATE_QUESTION';
 export const SAVE_QUESTION = 'SAVE_QUESTION';
 
 export default class QuestionActions {
@@ -35,7 +35,7 @@ export default class QuestionActions {
 				})
 				.catch(e => {
 					dispatch({type: `${GET_QUESTIONS}_REJECTED`});
-					openNotification('error', e);
+					openNotification('error', e.message);
 				});
 		};
 	};
@@ -66,14 +66,14 @@ export default class QuestionActions {
 				})
 				.catch(e => {
 					dispatch({type: `${DELETE_QUESTION}_REJECTED`});
-					openNotification('error', e);
+					openNotification('error', e.message);
 				});
 		};
 	};
 
-	changeQuestionName = (data) => {
+	updateQuestion = (data) => {
 		return {
-			type: `${CHANGE_QUESTION_NAME}`,
+			type: `${UPDATE_QUESTION}`,
 			payload: data,
 		}
 	};
@@ -90,7 +90,6 @@ export default class QuestionActions {
 				.then(response => {
 					if (response.status >= 400) {
 						isError = true;
-						debugger
 						dispatch({type: `${SAVE_QUESTION}_REJECTED`});
 					}
 					return response.json();
@@ -101,13 +100,12 @@ export default class QuestionActions {
 						openNotification('success', json.msg);
 						if (callback) callback();
 					} else {
-						debugger
 						openNotification('error', json.err);
 					}
 				})
 				.catch(e => {
 					dispatch({type: `${SAVE_QUESTION}_REJECTED`});
-					openNotification('error', e);
+					openNotification('error', e.message);
 				});
 		};
 	};

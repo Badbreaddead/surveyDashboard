@@ -1,5 +1,9 @@
 import React, {Component, PropTypes} from 'react';
 import { Input, Select, Button } from 'antd';
+import {connect} from 'react-redux';
+import { bindActionCreators } from 'redux';
+
+import QuestionActions from '../../actions/question';
 
 const Option = Select.Option;
 
@@ -9,40 +13,41 @@ class QuestionCardAnswers extends Component {
 
 		this.state = {
 			onHover: false,
-			answer: 'Option1',
-			answerTemporary: 'Option1',
-			expandActive: true,
 		};
 	}
 
-	componentWillMount() {
-		this.setState({ answer: this.props.answer })
-	}
-
 	handleInputChange = (event) => {
-		this.setState({ answerTemporary: event.target.value });
-	}
+		const { questionActions, answer } = this.props;
+		let question = JSON.parse(JSON.stringify(this.props.question));
+		let index;
 
-	editCardAnswers = () => {
-		const { answer } = this.state;
-
-		this.setState({ isEditing: true, answerTemporary: answer, expandActive: false, onHover: false })
-	}
-
-	saveCardAnswers = () =>     {
-		const { answerTemporary, expand } = this.state;
-
-		this.setState({ answer: answerTemporary, isEditing: false, expandActive: true, isExpanded: !expand, onHover: true })
-	}
-
-	cancelEditCardAnswers = () => {
-		const { expand, isEditing } = this.state;
-
-		this.setState({ isEditing: !isEditing, isExpanded: !expand, expandActive: true, onHover: true })
+		question.answers.forEach((a, i) => {
+			if (a.id === answer.id) {
+				index = i;
+			}
+		});
+		question.answers[index].text = event.target.value;
+		questionActions.updateQuestion(question);
 	}
 
 	deleteCardAnswers = () => {
-		this.setState({ isDeleting: true, expandActive: false, onHover: false })
+		const { questionActions, answer } = this.props;
+		let question = JSON.parse(JSON.stringify(this.props.question));
+		let index;
+
+		question.answers.forEach((a, i) => {
+			if (a.id === answer.id) {
+				index = i;
+			}
+		});
+		question.answers.splice(index, 1);
+
+		let answersLeft = question.answers.slice(0, index);
+		let answersRight = question.answers.slice(index);
+		answersRight.forEach(a => a.id--);
+		question.answers = answersLeft.concat(answersRight);
+
+		questionActions.saveQuestion(question);
 	}
 
 	onMouseEnterHandler = () => {
@@ -54,34 +59,93 @@ class QuestionCardAnswers extends Component {
 	}
 
 	addAnswer = () => {
-		console.log('addAnswer');
+		const { questionActions, answer } = this.props;
+		let question = JSON.parse(JSON.stringify(this.props.question));
+		let index;
+
+		question.answers.forEach((a, i) => {
+			if (a.id === answer.id) {
+				index = i;
+			}
+		});
+
+		const answersRight = question.answers.splice(index);
+		answersRight.forEach(a => a.id++);
+		question.answers.push({ id: index + 1, text: 'Default answer' })
+		question.answers.push(answersRight);
+
+		questionActions.saveQuestion(question);
 	}
 
 	moveUp = () => {
-		console.log('moveUpAnswer');
+		const { questionActions, answer } = this.props;
+		let question = JSON.parse(JSON.stringify(this.props.question));
+		let index;
+
+		question.answers.forEach((a, i) => {
+			if (a.id === answer.id) {
+				index = i;
+			}
+		});
+
+		if (index !== 0) {
+			question.answers[index].id--;
+			question.answers[index - 1].id++;
+			const removed = question.answers.splice(index, 1);
+			question.answers.splice(index - 1, 0, removed[0]);
+		} else {
+			question.answers[index].id = question.answers.length;
+			const removedFirst = question.answers.splice(index, 1);
+			question.answers.forEach(a => a.id--);
+			question.answers.push(removedFirst[0]);
+		}
+
+		questionActions.saveQuestion(question);
 	}
 
 	moveDown = () => {
-		console.log('moveDownAnswer');
+		const { questionActions, answer } = this.props;
+		let question = JSON.parse(JSON.stringify(this.props.question));
+		let index;
+
+		question.answers.forEach((a, i) => {
+			if (a.id === answer.id) {
+				index = i;
+			}
+		});
+
+		if (index !== question.answers.length - 1) {
+			question.answers[index].id++;
+			question.answers[index + 1].id--;
+			const removed = question.answers.splice(index, 1);
+			question.answers.splice(index + 1, 0, removed[0]);
+		} else {
+			question.answers[index].id = 1;
+			const removedLast = question.answers.pop();
+			question.answers.forEach(a => a.id++);
+			question.answers.splice(0, 0, removedLast[0]);
+		}
+
+		questionActions.saveQuestion(question);
 	}
 
     render() {
 	    const { onHover } = this.state;
-	    const { isEditing, text } = this.props;
+	    const { isEditing, answer } = this.props;
 
 	    return (
 	        <div className="card-answer">
 		        <div onMouseEnter={this.onMouseEnterHandler} onMouseLeave={this.onMouseLeaveHandler}>
-					<p className="card-text">1</p>
+					<p className="card-text">{answer.id}</p>
 			        {isEditing ?
 				        <Input
 					        size="large"
-					        value={text}
+					        defaultValue={answer.text}
 				            className="card-edit-answer"
 				            onChange={this.handleInputChange}
 				        />
 			            :
-				        <p className="card-text card-text-answer">{text}</p>
+				        <p className="card-text card-text-answer">{answer.text}</p>
 			        }
 			        <div className="modify-button-wrap">
 				        <Button icon="delete" className="card-delete-button" onClick={this.deleteCardAnswers}/>
@@ -119,4 +183,12 @@ class QuestionCardAnswers extends Component {
     }
 }
 
-export default QuestionCardAnswers;
+const mapStateToProps = (state) => ({
+	initQuestions: state.question.initQuestions,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+	questionActions: bindActionCreators(new QuestionActions, dispatch),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(QuestionCardAnswers);

@@ -33,10 +33,10 @@ class QuestionCard extends Component {
 
 	handleInputChange = (event) => {
 		const { questionActions } = this.props;
-		let question = Object.assign({}, this.props.question);
+		let question = JSON.parse(JSON.stringify(this.props.question));
 
 		question.question = event.target.value;
-		questionActions.changeQuestionName(question);
+		questionActions.updateQuestion(question);
 	}
 
 	editCard = (event) => {
@@ -49,6 +49,7 @@ class QuestionCard extends Component {
 		const changingQuestion = initQuestions.find(q => q.id === question.id);
 
 		questionActions.saveQuestion(changingQuestion, () => {this.setState({ isEditing: false, onHover: true })});
+		event.stopPropagation();
 	}
 
 	cancelEditCard = () => {
@@ -59,7 +60,7 @@ class QuestionCard extends Component {
 	deleteCard = (event) => {
 		const { question, questionActions } = this.props;
 
-		const questionId = { id: question.id};
+		const questionId = { id: question.id };
 		questionActions.deleteQuestion(questionId);
 		this.setState({ onHover: false });
 		event.stopPropagation();
@@ -87,7 +88,7 @@ class QuestionCard extends Component {
 
     render() {
 	    const { isEditing, isExpanded, onHover } = this.state;
-	    const { question } = this.props;
+	    const { question, item } = this.props;
 
 		let questionType;
 		if (question.ownAnswer.text === '')
@@ -104,7 +105,7 @@ class QuestionCard extends Component {
 		             onMouseEnter={this.onMouseEnterHandler}
 		             onMouseLeave={this.onMouseLeaveHandler}
 		        >
-					<p className="card-text">1</p>
+					<p className="card-text">{item + 1}</p>
 			        {isEditing ?
 				        <div className="card-edit-wrapper">
 					        <Input
@@ -113,20 +114,22 @@ class QuestionCard extends Component {
 						        className="card-edit-question"
 						        onChange={this.handleInputChange}
 					        />
-					        <Select
-						        size="large"
-						        defaultValue={questionType}
-						        onChange={this.handleSelectChange}
-						        className="card-edit-questionType"
-					        >
-						        <Option value="Own answer">Own answer</Option>
-						        <Option value="Options">Options</Option>
-						        <Option value="Own answer and options">Own answer and options</Option>
-					        </Select>
-					        <div className="card-edit-button-wrap">
+					        {question.isNew ?
+						        <Select
+							        size="large"
+							        defaultValue={questionType}
+							        onChange={this.handleSelectChange}
+							        className="card-edit-questionType"
+						        >
+							        <Option value="Own answer">Own answer</Option>
+							        <Option value="Options">Options</Option>
+							        <Option value="Own answer and options">Own answer and options</Option>
+						        </Select>
+						        :
+						        <p className="card-text card-text-questionType">{questionType}</p>
+					        }
 						        <Button icon="check" className="card-edit-button" onClick={this.saveCard}/>
 						        <Button icon="close" className="card-edit-button" onClick={this.cancelEditCard}/>
-					        </div>
 				        </div>
 			            :
 				        <div className="card-edit-wrapper">
@@ -173,8 +176,7 @@ class QuestionCard extends Component {
 							return <QuestionCardAnswer
 								key={question.id + i}
 								question={question}
-								text={answer.text}
-								id={answer.id}
+								answer={answer}
 								isEditing={isEditing}
 							/>
 				        })}

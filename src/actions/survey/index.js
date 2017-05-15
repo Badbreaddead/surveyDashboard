@@ -36,7 +36,7 @@ export default class SurveysActions {
 				})
 				.catch(e => {
 					dispatch({type: `${GET_SURVEYS}_REJECTED`});
-					openNotification('error', e);
+					openNotification('error', e.message);
 				});
 		};
 	};
@@ -75,7 +75,7 @@ export default class SurveysActions {
 				})
 				.catch(e => {
 					dispatch({type: `${SAVE_SURVEY}_REJECTED`});
-					openNotification('error', e);
+					openNotification('error', e.message);
 				});
 		};
 	};
@@ -107,7 +107,7 @@ export default class SurveysActions {
 				})
 				.catch(e => {
 					dispatch({type: `${ADD_SURVEY}_REJECTED`});
-					openNotification('error', e);
+					openNotification('error', e.message);
 				});
 		};
 	};
@@ -139,7 +139,7 @@ export default class SurveysActions {
 				})
 				.catch(e => {
 					dispatch({type: `${DELETE_SURVEY}_REJECTED`});
-					openNotification('error', e);
+					openNotification('error', e.message);
 				});
 		};
 	};
