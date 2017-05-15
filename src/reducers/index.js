@@ -1,8 +1,10 @@
 import {combineReducers} from "redux";
-import blankReducer from "./blank";
+import questionReducer from "./question";
+import surveyReducer from "./survey";
 
 const rootReducer = combineReducers({
-    blank: blankReducer
+	question: questionReducer,
+	survey: surveyReducer,
 });
 
 export default rootReducer;

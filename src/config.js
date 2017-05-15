@@ -1,4 +1,3 @@
-
 export default {
-  baseUrl: 'https://ticketchain-backend.herokuapp.com/api/v1/'
+  baseUrl: 'https://farzad-bot-api.herokuapp.com/'
 };

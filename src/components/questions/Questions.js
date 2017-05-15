@@ -1,6 +1,12 @@
 import React, {Component, PropTypes} from 'react';
-import { Select, Button, Input } from 'antd';
+import {connect} from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { Select, Button, Input, Spin } from 'antd';
+
 import QuestionCard from './QuestionCard';
+import QuestionActions from '../../actions/question';
+import SurveyActions from '../../actions/survey';
+
 const Option = Select.Option;
 
 class Questions extends Component {
@@ -8,236 +14,218 @@ class Questions extends Component {
 		super();
 
 		this.state = {
-			edit: false,
-			deleting: false,
-			add: false,
+			isEditing: false,
+			isAdding: false,
 			active: true,
-			survey: 'Survey1',
-			google: false,
-			send: false,
-			thankYouToogle: false,
-			thankYou: "Thank you",
-			thankYouTemporary: "Thank you",
 		};
 	}
 
-	editSurvey = () => {
-		this.setState({ edit: true })
+	componentWillMount () {
+		const { questionActions, surveyActions } = this.props;
+
+		questionActions.getQuestions();
+		surveyActions.getSurveys();
 	}
 
-	saveSurvey = () => {
-		this.setState({ edit: false })
+	deleteSurvey = () => {
+		const { surveyActions, currentSurvey } = this.props;
+
+		surveyActions.deleteSurvey(currentSurvey, () => {this.setState({ isDeleting: true })});
 	}
 
-	cancelEditSurvey = () => {
-		this.setState({ edit: false })
+	handleActivation = () => {
+		const { active } = this.state;
+
+		this.setState({ active: !active })
 	}
 
-	editThankYou = () => {
-		const { thankYou } = this.state;
-		this.setState({ thankYouToogle: true, thankYouTemporary: thankYou })
+	handleSelectChange = (value) => {
+		const { surveyActions, surveys } = this.props;
+
+		surveyActions.chooseSurvey(surveys[value]);
+	}
+
+	handleNameChange = (event) => {
+		this.setState({ surveyNameTemporary: event.target.value })
 	}
 
 	handleThankYouChange = (event) => {
 		this.setState({ thankYouTemporary: event.target.value });
 	}
 
-	saveThankYou = () => {
-		const { thankYouTemporary } = this.state;
-		this.setState({ thankYouToogle: false, thankYou: thankYouTemporary })
+	editSurvey = () => {
+		this.setState({ isEditing: true })
 	}
 
-	cancelEditThankYou = () => {
-		this.setState({ thankYouToogle: false })
+	saveSurvey = () => {
+		const { currentSurvey, surveyActions } = this.props;
+		const { surveyNameTemporary, thankYouTemporary } = this.state;
+
+		const changedSurvey = {
+			id: currentSurvey.id,
+			name: surveyNameTemporary || currentSurvey.name,
+			thankYou: thankYouTemporary || currentSurvey.thankYou
+		};
+
+		surveyActions.saveSurvey(changedSurvey, () => {this.setState({ isEditing: false })});
 	}
 
-	deleteSurvey = () => {
-		this.setState({ deleting: true })
-	}
-
-	confirmDeleteSurvey = () => {
-		this.setState({ deleting: false })
-	}
-
-	cancelDeleteSurvey = () => {
-		this.setState({ deleting: false })
+	cancelEditSurvey = () => {
+		this.setState({ isEditing: false })
 	}
 
 	addSurvey = () => {
-		this.setState({ add: true })
+		this.setState({ isAdding: true })
 	}
 
 	confirmAddSurvey = () => {
-		this.setState({ add: false })
+		const { surveyActions } = this.props;
+		const { surveyNameTemporary, thankYouTemporary } = this.state;
+
+		const newSurvey = {
+			name: surveyNameTemporary,
+			thankYou: thankYouTemporary,
+		};
+
+		surveyActions.addSurvey(newSurvey, () => {this.setState({ isAdding: false })});
 	}
 
 	cancelAddSurvey = () => {
-		this.setState({ add: false })
-	}
-
-	handleActivation = () => {
-		const { active } = this.state;
-		this.setState({ active: !active })
-	}
-
-	handleSurveyChange = (event) => {
-		this.setState({ survey: event.target.value })
+		this.setState({ isAdding: false })
 	}
 
 	exportGoogle = () => {
 		this.setState({ google: true })
 	}
 
-	confirmExportGoogle = () => {
-		this.setState({ google: false })
-	}
-
-	cancelExportGoogle = () => {
-		this.setState({ google: false })
-	}
-
 	sendUnanswered = () => {
 		this.setState({ send: true })
 	}
 
-	confirmSendUnanswered = () => {
-		this.setState({ send: false })
-	}
-
-	cancelSendUnanswered = () => {
-		this.setState({ send: false })
-	}
-
     render() {
-	    const { edit, deleting, add, active, survey, google, send, thankYou, thankYouToogle, thankYouTemporary } = this.state;
+	    const { isEditing, isAdding, active } = this.state;
+	    const { questions, surveys, currentSurvey, isFetching } = this.props;
 
 	    return (
 	    	<div className="questions">
-			    <div className="questions-surveys">
-				    {add ?
-					    <div className="modify-button-wrap">
-						    <Button icon="check" className="modify-button" onClick={this.confirmAddSurvey}/>
-						    <Button icon="close" className="modify-button" onClick={this.cancelAddSurvey}/>
-					    </div>
-					    :
-					    <div className="modify-button-wrap">
+			    {!isFetching && currentSurvey ?
+				    <div>
+					    <div className="questions-surveys">
+						    <div className="modify-button-wrap">
+							    <Button
+								    disabled={isAdding}
+								    icon="delete"
+								    className="modify-button"
+								    onClick={this.deleteSurvey}
+							    />
+							    <Button
+								    type={active ? 'primary' : 'default'}
+								    icon="poweroff"
+								    className="modify-button"
+								    onClick={this.handleActivation}
+								    disabled={isAdding}
+							    />
+						    </div>
+						    {isAdding || isEditing ?
+							    <Input
+								    defaultValue={isEditing ? currentSurvey.name : 'SurveyName'}
+								    size="large"
+								    className="questions-input questions-input-survey"
+								    onChange={this.handleNameChange}
+							    />
+						        :
+							    <Select
+								    value={currentSurvey.name}
+								    size="large"
+								    className="questions-select"
+							        onChange={this.handleSelectChange}
+							    >
+								    {surveys.map((survey, i) => {
+									    return <Option key={i}>{survey.name}</Option>
+								    })}
+							    </Select>
+						    }
+						    {isEditing ?
+							    <div className="modify-button-wrap">
+								    <Button icon="check" className="modify-button" onClick={this.saveSurvey}/>
+								    <Button icon="close" className="modify-button" onClick={this.cancelEditSurvey}/>
+							    </div>
+							    : null}
+						    {isAdding ?
+							    <div className="modify-button-wrap">
+								    <Button icon="check" className="modify-button" onClick={this.confirmAddSurvey}/>
+								    <Button icon="close" className="modify-button" onClick={this.cancelAddSurvey}/>
+							    </div>
+							    : null}
+						    {!isAdding && !isEditing ?
+							    <div className="modify-button-wrap">
+								    <Button
+									    icon="edit"
+									    className="modify-button"
+									    onClick={this.editSurvey}
+								    />
+								    <Button
+									    icon="plus"
+									    className="modify-button"
+									    onClick={this.addSurvey}
+								    />
+							    </div>
+							    : null}
+						    {isAdding || isEditing ?
+							    <div className="modify-button-wrap modify-button-wrap-thank-you">
+								    <Input
+									    size="large"
+									    defaultValue={isEditing ? currentSurvey.thankYou : 'Thank you'}
+									    className="questions-input questions-input-thank-you"
+									    onChange={this.handleThankYouChange}
+								    />
+							    </div>
+							    :
+							    <div className="modify-button-wrap modify-button-wrap-thank-you">
+							        <p className="questions-text questions-text-thank-you">{currentSurvey.thankYou}</p>
+							    </div>
+						    }
 						    <Button
-							    icon="plus"
-							    className="modify-button"
-							    onClick={this.addSurvey}
-							    disabled={edit || deleting || google || send || thankYouToogle}
+							    className="modify-button float-right"
+							    icon="export"
+							    onClick={this.exportGoogle}
+							    disabled={isAdding || isEditing}
 						    />
 						    <Button
-							    type={active ? 'primary' : 'default'}
-							    icon="poweroff"
-							    className="modify-button"
-							    onClick={this.handleActivation}
-							    disabled={edit || deleting || google || send || thankYouToogle}
+							    className="modify-button float-right"
+							    icon="message"
+							    onClick={this.sendUnanswered}
+							    disabled={isAdding || isEditing}
 						    />
 					    </div>
-				    }
-				    {add || edit ?
-					    <Input
-						    size="large"
-						    value={survey}
-						    className="questions-input questions-input-survey"
-						    onChange={this.handleSurveyChange}
-					    />
-				        :
-					    <Select
-						    defaultValue={survey}
-						    size="large"
-						    className="questions-select"
-						    disabled={deleting || google || send || thankYouToogle}
-					    >
-						    <Option key='1'>{survey}</Option>
-						    <Option key='2'>{survey}</Option>
-						    <Option key='3'>{survey}</Option>
-					    </Select>
-				    }
-				    {edit ?
-					    <div className="modify-button-wrap">
-						    <Button icon="check" className="modify-button" onClick={this.saveSurvey}/>
-						    <Button icon="close" className="modify-button" onClick={this.cancelEditSurvey}/>
+					    <div className="questions-wrapper">
+					    {questions.length ? questions.map((question, i) => {
+							    if (question.survey === currentSurvey.name) {
+								    return <QuestionCard key={i} question={question}/>
+							    }
+						    }) : null}
 					    </div>
-					    : null}
-				    {!deleting && !edit ?
-					    <div className="modify-button-wrap">
-						    <Button
-							    icon="edit"
-							    className="modify-button"
-							    onClick={this.editSurvey}
-							    disabled={add || google || send || thankYouToogle}
-						    />
-						    <Button
-							    disabled={add || google || send || thankYouToogle}
-							    icon="delete"
-							    className="modify-button"
-							    onClick={this.deleteSurvey}
-						    />
-					    </div>
-					    : null}
-				    {deleting ?
-					    <div className="modify-button-wrap">
-						    <Button icon="check" className="modify-button" onClick={this.confirmDeleteSurvey}/>
-						    <Button icon="close" className="modify-button" onClick={this.cancelDeleteSurvey}/>
-					    </div>
-					    : null}
-				    {thankYouToogle ?
-					    <div className="modify-button-wrap modify-button-wrap-thank-you">
-						    <Input
-							    size="large"
-							    value={thankYouTemporary}
-							    className="questions-input questions-input-thank-you"
-							    onChange={this.handleThankYouChange}
-						    />
-						    <Button icon="check" className="modify-button" onClick={this.saveThankYou}/>
-						    <Button icon="close" className="modify-button" onClick={this.cancelEditThankYou}/>
-					    </div>
-					    :
-					    <div className="modify-button-wrap modify-button-wrap-thank-you">
-					        <p className="questions-text questions-text-thank-you">{thankYou}</p>
-						    <Button
-							    icon="edit"
-							    className="modify-button"
-							    onClick={this.editThankYou}
-							    disabled={add || google || send || edit || deleting}
-						    />
-					    </div>
-				    }
-				    {google ?
-					    <div className="modify-button-wrap float-right">
-						    <Button icon="check" className="modify-button" onClick={this.confirmExportGoogle}/>
-						    <Button icon="close" className="modify-button" onClick={this.cancelExportGoogle}/>
-					    </div> : null}
-				    {!google && !send ?
-					    <Button
-						    className="modify-button float-right"
-						    icon="export"
-						    onClick={this.exportGoogle}
-						    disabled={add || edit || deleting || send || thankYouToogle}
-					    /> : null}
-				    {send ?
-					    <div className="modify-button-wrap float-right">
-						    <Button icon="check" className="modify-button" onClick={this.confirmSendUnanswered}/>
-						    <Button icon="close" className="modify-button" onClick={this.cancelSendUnanswered}/>
-					    </div> : null}
-				    {!google && !send ?
-					    <Button
-						    className="modify-button float-right"
-						    icon="message"
-						    onClick={this.sendUnanswered}
-						    disabled={add || edit || deleting || google || thankYouToogle}
-					    /> : null}
-			    </div>
-		        <div className="questions-wrapper">
-					<QuestionCard number="1"/>
-					<QuestionCard number="2"/>
-					<QuestionCard number="3"/>
-		        </div>
+				    </div>
+				    :
+				    <div className="questions-spinner-wrapper">
+				        <Spin className="questions-spinner" size="large" />
+				    </div>
+			    }
 		    </div>
         );
     }
 }
 
-export default Questions;
+const mapStateToProps = (state) => ({
+	isFetching: state.question.isFetching || state.survey.isFetching,
+	questions: state.question.questions,
+	surveys: state.survey.surveys,
+	currentSurvey: state.survey.currentSurvey,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+	questionActions: bindActionCreators(new QuestionActions, dispatch),
+	surveyActions: bindActionCreators(new SurveyActions, dispatch)
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Questions);
