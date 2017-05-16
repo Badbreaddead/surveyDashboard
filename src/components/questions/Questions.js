@@ -53,16 +53,15 @@ class Questions extends Component {
 
 	handleNameChange = (event) => {
 		this.setState({ surveyNameTemporary: event.target.value })
-		debugger
 	}
 
 	handleThankYouChange = (event) => {
 		this.setState({ thankYouTemporary: event.target.value });
-		debugger
 	}
 
 	editSurvey = () => {
-		this.setState({ isEditing: true })
+		const { currentSurvey } = this.props;
+		this.setState({ isEditing: true, surveyNameTemporary: currentSurvey.name, thankYouTemporary: currentSurvey.thankYou });
 	}
 
 	saveSurvey = () => {
@@ -86,7 +85,7 @@ class Questions extends Component {
 	}
 
 	addSurvey = () => {
-		this.setState({ isAdding: true })
+		this.setState({ isAdding: true, surveyNameTemporary: '', thankYouTemporary: '' })
 	}
 
 	confirmAddSurvey = () => {
@@ -133,7 +132,7 @@ class Questions extends Component {
 	}
 
     render() {
-	    const { isEditing, isAdding } = this.state;
+	    const { isEditing, isAdding, surveyNameTemporary, thankYouTemporary } = this.state;
 	    const { questions, surveys, currentSurvey, isFetching } = this.props;
 
 	    return (
@@ -177,7 +176,7 @@ class Questions extends Component {
 							    </div>
 							    {isAdding || isEditing ?
 								    <Input
-									    defaultValue={isEditing ? currentSurvey.name : 'SurveyName'}
+									    value={isAdding || isEditing ? surveyNameTemporary : currentSurvey.name}
 									    size="large"
 									    className="questions-input questions-input-survey"
 									    onChange={this.handleNameChange}
@@ -241,7 +240,7 @@ class Questions extends Component {
 									    >
 										    <Input
 											    size="large"
-											    defaultValue={isEditing ? currentSurvey.thankYou : 'Thank you'}
+											    value={isAdding || isEditing ? thankYouTemporary : currentSurvey.thankYou}
 											    className="questions-input questions-input-thank-you"
 											    onChange={this.handleThankYouChange}
 										    />
@@ -300,7 +299,7 @@ class Questions extends Component {
 						    <div className="questions-wrapper">
 						    {questions.length ?
 							    questions.map((question, i) => {
-								    return <QuestionCard item={i} key={i} question={question}/>
+								    return <QuestionCard item={i} key={i} question={question} isAdding={isAdding}/>
 							    })
 							    :
 							    <div className="card card-wrapper">

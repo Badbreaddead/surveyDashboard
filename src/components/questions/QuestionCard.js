@@ -98,7 +98,7 @@ class QuestionCard extends Component {
 
     render() {
 	    const { isEditing, isExpanded, onHover } = this.state;
-	    const { question, item, initQuestions } = this.props;
+	    const { question, item, initQuestions, isAdding } = this.props;
 	    const initQuestion = initQuestions.find(q => q.id === question.id);
 
 		let questionType;
@@ -111,12 +111,13 @@ class QuestionCard extends Component {
 
 	    return (
 	        <div className="card card-wrapper">
+		        {!isAdding ?
 		        <div className="card-question-wrapper"
 		             onClick={this.expandCard}
 		             onMouseEnter={this.onMouseEnterHandler}
 		             onMouseLeave={this.onMouseLeaveHandler}
 		        >
-					<p className="card-text">{item + 1}</p>
+			        <p className="card-text">{item + 1}</p>
 			        {isEditing || question.isNew ?
 				        <div className="card-edit-wrapper">
 					        <Input
@@ -125,7 +126,6 @@ class QuestionCard extends Component {
 						        className="card-edit-question"
 						        onChange={this.handleInputChange}
 					        />
-					        {question.isNew ?
 						        <Select
 							        size="large"
 							        defaultValue={questionType}
@@ -136,9 +136,7 @@ class QuestionCard extends Component {
 							        <Option value="Options">Options</Option>
 							        <Option value="Own answer and options">Own answer and options</Option>
 						        </Select>
-						        :
 						        <p className="card-text card-text-questionType">{questionType}</p>
-					        }
 						        <Button icon="check" className="card-edit-button" onClick={this.saveCard}/>
 						        <Button icon="close" className="card-edit-button" onClick={this.cancelEditCard}/>
 				        </div>
@@ -146,6 +144,7 @@ class QuestionCard extends Component {
 				        <div className="card-edit-wrapper">
 				            <p className="card-text card-text-question">{question.question}</p>
 							<p className="card-text card-text-questionType">{questionType}</p>
+
 					        <Button
 						        icon="edit"
 						        className="card-edit-button"
@@ -163,7 +162,7 @@ class QuestionCard extends Component {
 					            />
 					        </Popconfirm>
 		                </div>}
-		        </div>
+		        </div> : null}
 		        {onHover ?
 			        <div>
 				        <div className="card-up-down-wrapper">
