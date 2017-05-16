@@ -89,12 +89,39 @@ class QuestionCard extends Component {
 	}
 
 	moveUp = () => {
-		console.log('moveUp');
-	}
+        const { question, questionActions, order } = this.props;
+		const newOrder = [...order];
+        
+		if (order.find(item => item.id === question.id).index = 1) {
+            newOrder.forEach(item => item.index++);
+            newOrder.find(item => item.id === question.id).index = order.length;
+		} else {
+            const index = order.find(item => item.id === question.id).index;
+            newOrder.find(item => item.index === index - 1).index++;
+            newOrder.find(item => item.id === question.id).index--;
+		}
+		
+		debugger
+        questionActions.changeOrder(newOrder);
+	};
 
 	moveDown = () => {
-		console.log('moveDown');
-	}
+        const { question, questionActions, order } = this.props;
+        const newOrder = [...order];
+        
+        if (order.find(item => item.id === question.id).index = order.length) {
+            newOrder.forEach(item => item.index--);
+            newOrder.find(item => item.id === question.id).index = 1;
+        } else {
+            const index = order.find(item => item.id === question.id).index;
+            newOrder.find(item => item.index === index - 1).index--;
+            newOrder.find(item => item.id === question.id).index++;
+        }
+        
+        
+        
+        questionActions.changeOrder(newOrder);
+	};
 
     render() {
 	    const { isEditing, isExpanded, onHover } = this.state;
@@ -212,6 +239,7 @@ class QuestionCard extends Component {
 
 const mapStateToProps = (state) => ({
 	initQuestions: state.question.initQuestions,
+	order: state.question.order,
 });
 
 const mapDispatchToProps = (dispatch) => ({

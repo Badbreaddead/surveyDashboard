@@ -2,6 +2,7 @@ import {
 	GET_QUESTIONS,
 	DELETE_QUESTION,
 	UPDATE_QUESTION,
+    UPDATE_ORDER,
 	SAVE_QUESTION,
 	ADD_QUESTION,
 	ADD_FIRST_QUESTION,
@@ -10,6 +11,7 @@ import {
 const initialState = {
 	isFetching: false,
 	questions: [],
+	order: [],
 	initQuestions: [],
 };
 
@@ -21,10 +23,13 @@ function questionReducer(state = initialState, action) {
 			});
 		}
 		case `${GET_QUESTIONS}_FULFILLED`: {
+			const order = action.payload.data.map((question, key) => ({id: question.id, index: question.index || key}));
+            
 			return Object.assign({}, state, {
 				isFetching: false,
+                order,
 				questions: action.payload.data,
-				initQuestions: action.payload.data,
+				initQuestions: action.payload.data
 			});
 		}
 		case `${GET_QUESTIONS}_REJECTED`: {
@@ -128,6 +133,31 @@ function questionReducer(state = initialState, action) {
 				questions,
 			});
 		}
+        
+        case `${UPDATE_ORDER}_PENDING`: {
+            return Object.assign({}, state, {
+                isFetching: true
+            });
+        }
+        case `${UPDATE_ORDER}_FULFILLED`: {
+        	const order = action.payload;
+            const questions = [...state.questions];
+            
+            questions.sort((a, b) => {
+            	return order.find(q => a.id === q.id).index - order.find(q => b.id === q.id).index
+			});
+            
+            return Object.assign({}, state, {
+                isFetching: false,
+                questions,
+                order
+            });
+        }
+        case `${UPDATE_ORDER}_REJECTED`: {
+            return Object.assign({}, state, {
+                isFetching: false,
+            });
+        }
 		default:
 			return state;
 	}

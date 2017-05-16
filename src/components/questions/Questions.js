@@ -32,7 +32,7 @@ class Questions extends Component {
 		const { surveyActions, currentSurvey } = this.props;
 
 		surveyActions.deleteSurvey(currentSurvey, () => {this.setState({ isDeleting: true })});
-	}
+	};
 
 	handleActivation = () => {
 		const { surveyActions, currentSurvey } = this.props;
