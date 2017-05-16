@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Select, Button, Input, Spin, Tooltip } from 'antd';
+import { Select, Button, Input, Spin, Tooltip, Popconfirm } from 'antd';
 
 import QuestionCard from './QuestionCard';
 import QuestionActions from '../../actions/question';
@@ -95,11 +95,29 @@ class Questions extends Component {
 	}
 
 	exportGoogle = () => {
-		this.setState({ google: true })
 	}
 
 	sendUnanswered = () => {
-		this.setState({ send: true })
+	}
+
+	addFirstQuestion = () => {
+		const { currentSurvey, questionActions } = this.props;
+		const firstQuestion = {
+			survey: currentSurvey.name,
+			question: "First question",
+			answers: [
+				{
+					id: 0,
+					answer: "First answer",
+				}
+			],
+			ownAnswer: {
+				text: "your answer",
+			},
+			type: "ownAndOptions",
+		};
+
+		questionActions.addQuestion(firstQuestion);
 	}
 
     render() {
@@ -113,15 +131,27 @@ class Questions extends Component {
 					    <div>
 						    <div className="questions-surveys">
 							    <div className="modify-button-wrap">
-								    <Button
-									    disabled={isAdding}
-									    icon="delete"
-									    className="modify-button"
-									    onClick={this.deleteSurvey}
-								    />
 								    <Tooltip
 									    placement="topLeft"
-									    title='If BLUE a survey is active'
+									    title='Delete the survey'
+									    mouseEnterDelay={1}
+								    >
+									    <Popconfirm title="Delete the survey?"
+									                onConfirm={this.deleteSurvey}
+									                okText="Yes"
+									                cancelText="No"
+									                placement="bottomLeft"
+									    >
+										    <Button
+											    disabled={isAdding}
+											    icon="delete"
+											    className="modify-button"
+										    />
+									    </Popconfirm>
+								    </Tooltip>
+								    <Tooltip
+									    placement="topLeft"
+									    title='If BLUE the survey is active'
 									    mouseEnterDelay={1}
 								    >
 									    <Button
@@ -166,11 +196,17 @@ class Questions extends Component {
 								    : null}
 							    {!isAdding && !isEditing ?
 								    <div className="modify-button-wrap">
-									    <Button
-										    icon="edit"
-										    className="modify-button"
-										    onClick={this.editSurvey}
-									    />
+									    <Tooltip
+										    placement="top"
+										    title='Edit the survey'
+										    mouseEnterDelay={1}
+									    >
+										    <Button
+											    icon="edit"
+											    className="modify-button"
+											    onClick={this.editSurvey}
+										    />
+									    </Tooltip>
 									    <Tooltip
 										    placement="top"
 								             title='Add new survey'
@@ -188,7 +224,7 @@ class Questions extends Component {
 								    <div className="modify-button-wrap modify-button-wrap-thank-you">
 									    <Tooltip
 										    placement="top"
-										    title='Thank you message at the end of a survey'
+										    title='Message at the end of the survey'
 										    mouseEnterDelay={1}
 									    >
 										    <Input
@@ -203,44 +239,69 @@ class Questions extends Component {
 								    <div className="modify-button-wrap modify-button-wrap-thank-you">
 									    <Tooltip
 										    placement="top"
-										    title='Thank you message at the end of a survey'
+										    title='Message at the end of the survey'
 										    mouseEnterDelay={1}
 									    >
 								            <p className="questions-text questions-text-thank-you">{currentSurvey.thankYou}</p>
 									    </Tooltip>
 								    </div>
 							    }
-							    <Tooltip
-								    placement="topRight"
-								    title='Export to google spreadsheet'
-								    mouseEnterDelay={1}
-							    >
-								    <Button
-									    className="modify-button float-right"
-									    icon="export"
-									    onClick={this.exportGoogle}
-									    disabled={isAdding || isEditing}
-								    />
-							    </Tooltip>
-							    <Tooltip
-								    placement="topRight"
-								    title='Send unanswered questions to users'
-								    mouseEnterDelay={1}
-							    >
-								    <Button
-									    className="modify-button float-right"
-									    icon="message"
-									    onClick={this.sendUnanswered}
-									    disabled={isAdding || isEditing}
-								    />
-							    </Tooltip>
+							    <div className="float-right">
+								    <Tooltip
+									    placement="topRight"
+									    title='Export to google spreadsheet'
+									    mouseEnterDelay={1}
+								    >
+									    <Popconfirm title="Export to google spread sheet?"
+									                onConfirm={this.exportGoogle}
+									                okText="Yes"
+									                cancelText="No"
+									                placement="bottomRight"
+									    >
+										    <Button
+											    className="modify-button"
+											    icon="export"
+											    disabled={isAdding || isEditing}
+										    />
+									    </Popconfirm>
+								    </Tooltip>
+								    <Tooltip
+									    placement="topRight"
+									    title='Send unanswered questions to users'
+									    mouseEnterDelay={1}
+								    >
+									    <Popconfirm title="Send unanswered questions to users?"
+									                onConfirm={this.sendUnanswered}
+									                okText="Yes"
+									                cancelText="No"
+									                placement="bottomRight"
+									    >
+										    <Button
+											    className="modify-button"
+											    icon="message"
+											    disabled={isAdding || isEditing}
+										    />
+									    </Popconfirm>
+								    </Tooltip>
+							    </div>
 						    </div>
 						    <div className="questions-wrapper">
-						    {questions.length ? questions.map((question, i) => {
+						    {questions.some(q => q.survey === currentSurvey.name) ? questions.map((question, i) => {
 								    if (question.survey === currentSurvey.name) {
 									    return <QuestionCard item={i} key={i} question={question}/>
 								    }
-							    }) : null}
+							    })
+							    :
+							    <div className="card card-wrapper">
+								    <div className="card-question-wrapper centered">
+									    <Button
+										    icon="plus"
+										    className="modify-button"
+										    onClick={this.addFirstQuestion}
+									    />
+							        </div>
+							    </div>
+						    }
 						    </div>
 					    </div>
 					    : null}

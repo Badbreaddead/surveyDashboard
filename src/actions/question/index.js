@@ -8,6 +8,7 @@ export const GET_QUESTIONS = 'GET_QUESTIONS';
 export const DELETE_QUESTION = 'DELETE_QUESTION';
 export const UPDATE_QUESTION = 'UPDATE_QUESTION';
 export const SAVE_QUESTION = 'SAVE_QUESTION';
+export const ADD_QUESTION = 'ADD_QUESTION';
 
 export default class QuestionActions {
 
@@ -105,6 +106,38 @@ export default class QuestionActions {
 				})
 				.catch(e => {
 					dispatch({type: `${SAVE_QUESTION}_REJECTED`});
+					openNotification('error', e.message);
+				});
+		};
+	};
+
+	addQuestion = (newQuestion, callback) => {
+		let isError = false;
+		return dispatch => {
+			dispatch({type: `${ADD_QUESTION}_PENDING`});
+			fetch(`${config.baseUrl}questions/create`,
+				{ method: 'POST',
+					headers: getHeaders(),
+					body: JSON.stringify(newQuestion)
+				})
+				.then(response => {
+					if (response.status >= 400) {
+						isError = true;
+						dispatch({type: `${ADD_QUESTION}_REJECTED`});
+					}
+					return response.json();
+				})
+				.then(json => {
+					if (!isError) {
+						dispatch({type: `${ADD_QUESTION}_FULFILLED`, payload: newQuestion});
+						openNotification('success', json.msg);
+						if (callback) callback();
+					} else {
+						openNotification('error', json.err);
+					}
+				})
+				.catch(e => {
+					dispatch({type: `${ADD_QUESTION}_REJECTED`});
 					openNotification('error', e.message);
 				});
 		};

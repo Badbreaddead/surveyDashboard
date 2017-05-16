@@ -99,6 +99,7 @@ class QuestionCardAnswers extends Component {
 			question.answers.forEach(a => a.id--);
 			question.answers.push(removedFirst[0]);
 		}
+		debugger
 
 		questionActions.saveQuestion(question);
 	}
@@ -125,6 +126,7 @@ class QuestionCardAnswers extends Component {
 			question.answers.forEach(a => a.id++);
 			question.answers.splice(0, 0, removedLast[0]);
 		}
+		debugger
 
 		questionActions.saveQuestion(question);
 	}

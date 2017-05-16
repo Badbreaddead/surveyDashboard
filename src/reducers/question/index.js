@@ -3,6 +3,7 @@ import {
 	DELETE_QUESTION,
 	UPDATE_QUESTION,
 	SAVE_QUESTION,
+	ADD_QUESTION,
 } from '../../actions/question';
 
 const initialState = {
@@ -93,6 +94,26 @@ function questionReducer(state = initialState, action) {
 			});
 		}
 		case `${SAVE_QUESTION}_REJECTED`: {
+			return Object.assign({}, state, {
+				isFetching: false,
+			});
+		}
+		case `${ADD_QUESTION}_PENDING`: {
+			return Object.assign({}, state, {
+				isFetching: true
+			});
+		}
+		case `${ADD_QUESTION}_FULFILLED`: {
+			const questions = [...state.questions];
+
+			questions.push(action.payload);
+debugger
+			return Object.assign({}, state, {
+				isFetching: false,
+				questions,
+			});
+		}
+		case `${ADD_QUESTION}_REJECTED`: {
 			return Object.assign({}, state, {
 				isFetching: false,
 			});

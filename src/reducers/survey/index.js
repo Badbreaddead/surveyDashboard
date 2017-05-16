@@ -41,7 +41,13 @@ function surveyReducer(state = initialState, action) {
 		}
 		case `${SAVE_SURVEY}_FULFILLED`: {
 			const surveys = [...state.surveys];
-			const index = state.surveys.indexOf(action.payload);
+			let index;
+
+			surveys.forEach((survey, i) => {
+				if (survey.id === action.payload.id) {
+					index = i;
+				}
+			});
 
 			surveys[index] = action.payload;
 

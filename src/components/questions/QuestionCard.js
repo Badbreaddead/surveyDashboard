@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Input, Select, Button } from 'antd';
+import { Input, Select, Button, Popconfirm } from 'antd';
 
 import QuestionCardAnswer from './QuestionCardAnswer';
 import QuestionActions from '../../actions/question';
@@ -53,8 +53,11 @@ class QuestionCard extends Component {
 	}
 
 	cancelEditCard = () => {
-
 		this.setState({ isEditing: false, onHover: true });
+	}
+
+	handleDeleteCard = (event) => {
+		event.stopPropagation();
 	}
 
 	deleteCard = (event) => {
@@ -62,7 +65,6 @@ class QuestionCard extends Component {
 
 		const questionId = { id: question.id };
 		questionActions.deleteQuestion(questionId);
-		this.setState({ onHover: false });
 		event.stopPropagation();
 	}
 
@@ -140,7 +142,17 @@ class QuestionCard extends Component {
 						        className="card-edit-button"
 						        onClick={this.editCard}
 					        />
-					        <Button icon="delete" className="card-delete-button" onClick={this.deleteCard}/>
+					        <Popconfirm title="Delete this question?"
+					                    onConfirm={this.deleteCard}
+					                    okText="Yes"
+					                    cancelText="No"
+					        >
+					            <Button
+						            icon="delete"
+						            className="card-delete-button"
+						            onClick={this.handleDeleteCard}
+					            />
+					        </Popconfirm>
 		                </div>}
 		        </div>
 		        {onHover ?
