@@ -155,8 +155,9 @@ export default class SurveysActions {
 				})
 				.then(json => {
 					if (!isError) {
+                        newSurvey.id = json.id;
 						dispatch({type: `${ADD_SURVEY}_FULFILLED`, payload: newSurvey});
-						openNotification('success', json.msg);
+						openNotification('success', "Survey created");
 						if (callback) callback();
 					} else {
 						openNotification('error', json.err);

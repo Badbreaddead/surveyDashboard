@@ -10,7 +10,7 @@ export const UPDATE_QUESTION = 'UPDATE_QUESTION';
 export const UPDATE_ORDER = 'UPDATE_ORDER';
 export const SAVE_QUESTION = 'SAVE_QUESTION';
 export const ADD_QUESTION = 'ADD_QUESTION';
-export const ADD_FIRST_QUESTION = 'ADD_FIRST_QUESTION';
+export const ADD_QUESTION_FORM = 'ADD_QUESTION_FORM';
 export const UPDATE_INIT_QUESTIONS = 'UPDATE_INIT_QUESTIONS';
 
 export default class QuestionActions {
@@ -90,7 +90,7 @@ export default class QuestionActions {
 
 		return dispatch => {
 			dispatch({type: `${SAVE_QUESTION}_PENDING`});
-			fetch(`${config.baseUrl}questions/update`,
+			fetch(`${config.baseUrl}questions/create`,
 				{ method: 'PUT',
 					headers: getHeaders(),
 					body: JSON.stringify(changingQuestion)
@@ -137,8 +137,9 @@ export default class QuestionActions {
 				})
 				.then(json => {
 					if (!isError) {
+                        newQuestion.id = json.id;
 						dispatch({type: `${ADD_QUESTION}_FULFILLED`, payload: newQuestion});
-						openNotification('success', json.msg);
+						openNotification('success', "Question added");
 						if (callback) callback();
 					} else {
 						openNotification('error', json.err);
@@ -155,7 +156,7 @@ export default class QuestionActions {
         let isError = false;
         
         return dispatch => {
-            dispatch({type: `${ADD_QUESTION}_PENDING`});
+            dispatch({type: `${UPDATE_ORDER}_PENDING`});
             fetch(`${config.baseUrl}questions/order`,
                 {
                     method: 'PUT',
@@ -184,9 +185,9 @@ export default class QuestionActions {
         }
 	};
 	
-	addFirstQuestion = (data) => {
+	addQuestionForm = (data) => {
 		return {
-			type: `${ADD_FIRST_QUESTION}`,
+			type: `${ADD_QUESTION_FORM}`,
 			payload: data,
 		}
 	};

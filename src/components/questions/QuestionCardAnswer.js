@@ -17,118 +17,113 @@ class QuestionCardAnswers extends Component {
 	}
 
 	handleInputChange = (event) => {
-		const { questionActions, answer } = this.props;
-		let question = JSON.parse(JSON.stringify(this.props.question));
+		const { questionActions, answer, question } = this.props;
+		let newQuestion = Object.assign({}, question);
 		let index;
-
-		question.answers.forEach((a, i) => {
-			if (a.id === answer.id) {
-				index = i;
-			}
-		});
-		question.answers[index].text = event.target.value;
-
-		questionActions.updateQuestion(question);
-	}
+        
+        newQuestion.answers.find(a => a.id === answer.id).text = event.target.value;
+	
+		questionActions.updateQuestion(newQuestion);
+	};
 
 	deleteCardAnswers = () => {
-		const { questionActions, answer } = this.props;
-		let question = JSON.parse(JSON.stringify(this.props.question));
+		const { questionActions, answer, question } = this.props;
+        let newQuestion = Object.assign({}, question);
 		let index;
-
-		question.answers.forEach((a, i) => {
+        
+        newQuestion.answers.forEach((a, i) => {
 			if (a.id === answer.id) {
 				index = i;
 			}
 		});
 		question.answers.splice(index, 1);
 
-		let answersLeft = question.answers.slice(0, index);
-		let answersRight = question.answers.slice(index);
+		let answersLeft = newQuestion.answers.slice(0, index);
+		let answersRight = newQuestion.answers.slice(index);
 		answersRight.forEach(a => a.id--);
-		question.answers = answersLeft.concat(answersRight);
+        newQuestion.answers = answersLeft.concat(answersRight);
 
-		questionActions.updateQuestion(question);
-	}
+		questionActions.updateQuestion(newQuestion);
+	};
 
 	onMouseEnterHandler = () => {
 		this.setState({ onHover: true })
-	}
+	};
 
 	onMouseLeaveHandler = () => {
 		this.setState({ onHover: false })
-	}
+	};
 
 	addAnswer = () => {
-		const { questionActions, answer } = this.props;
-		let question = JSON.parse(JSON.stringify(this.props.question));
+		const { questionActions, answer, question } = this.props;
+        let newQuestion = Object.assign({}, question);
 		let index;
-
-		question.answers.forEach((a, i) => {
+        
+        newQuestion.answers.forEach((a, i) => {
 			if (a.id === answer.id) {
 				index = i;
 			}
 		});
 
-		const answersRight = question.answers.splice(index);
+		const answersRight = newQuestion.answers.splice(index);
 		answersRight.forEach(a => a.id++);
-		question.answers.push({ id: index + 1, text: 'Default answer', isNew: true })
-		question.answers = question.answers.concat(answersRight);
+        newQuestion.answers.push({ id: index + 1, text: 'Default answer', isNew: true });
+        newQuestion.answers = newQuestion.answers.concat(answersRight);
 
 		questionActions.updateQuestion(question);
-	}
+	};
 
 	moveUp = () => {
-		const { questionActions, answer } = this.props;
-		let question = JSON.parse(JSON.stringify(this.props.question));
+		const { questionActions, answer, question } = this.props;
+        let newQuestion = Object.assign({}, question);
 		let index;
-
-		question.answers.forEach((a, i) => {
+        
+        newQuestion.answers.forEach((a, i) => {
 			if (a.id === answer.id) {
 				index = i;
 			}
 		});
 
 		if (index !== 0) {
-			question.answers[index].id--;
-			question.answers[index - 1].id++;
+            newQuestion.answers[index].id--;
+            newQuestion.answers[index - 1].id++;
 			const removed = question.answers.splice(index, 1);
-			question.answers.splice(index - 1, 0, removed[0]);
+            newQuestion.answers.splice(index - 1, 0, removed[0]);
 		} else {
-			question.answers[index].id = question.answers.length;
-			const removedFirst = question.answers.splice(index, 1);
-			question.answers.forEach(a => a.id--);
-			question.answers.push(removedFirst[0]);
+            newQuestion.answers[index].id = newQuestion.answers.length;
+			const removedFirst = newQuestion.answers.splice(index, 1);
+            newQuestion.answers.forEach(a => a.id--);
+            newQuestion.answers.push(removedFirst[0]);
 		}
 
-		questionActions.updateQuestion(question);
-	}
+		questionActions.updateQuestion(newQuestion);
+	};
 
 	moveDown = () => {
-		const { questionActions, answer } = this.props;
-		let question = JSON.parse(JSON.stringify(this.props.question));
+		const { questionActions, answer, question } = this.props;
+        let newQuestion = Object.assign({}, question);
 		let index;
-
-		question.answers.forEach((a, i) => {
+        
+        newQuestion.answers.forEach((a, i) => {
 			if (a.id === answer.id) {
 				index = i;
 			}
 		});
 
-		if (index !== question.answers.length - 1) {
-			question.answers[index].id++;
-			question.answers[index + 1].id--;
+		if (index !== newQuestion.answers.length - 1) {
+            newQuestion.answers[index].id++;
+            newQuestion.answers[index + 1].id--;
 			const removed = question.answers.splice(index, 1);
-			question.answers.splice(index + 1, 0, removed[0]);
+            newQuestion.answers.splice(index + 1, 0, removed[0]);
 		} else {
-			question.answers[index].id = 1;
+            newQuestion.answers[index].id = 1;
 			const removedLast = question.answers.pop();
-			question.answers.forEach(a => a.id++);
-			question.answers.splice(0, 0, removedLast);
+            newQuestion.answers.forEach(a => a.id++);
+            newQuestion.answers.splice(0, 0, removedLast);
 		}
 
-		questionActions.updateQuestion(question);
-	}
+		questionActions.updateQuestion(newQuestion);
+	};
 
     render() {
 	    const { onHover } = this.state;

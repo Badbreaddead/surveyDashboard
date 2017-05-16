@@ -27,66 +27,78 @@ class QuestionCard extends Component {
 			this.setState({ isExpanded: !isExpanded });
 		}
 	}
-
+	
+	//TODO
 	handleSelectChange = (value) => {
-
-	}
-
+        const { questionActions, question } = this.props;
+        const newQuestion = Object.assign({}, question);
+        
+        newQuestion.type = value;
+        questionActions.updateQuestion(newQuestion);
+	};
+    
+    handleSelectFocus = (event) => {
+        event.stopPropagation();
+    };
+	
 	handleInputChange = (event) => {
-		const { questionActions, initQuestions, question } = this.props;
-		const initQuestion = JSON.parse(JSON.stringify(initQuestions.find(q => q.id === question.id)));
-
-		initQuestion.question = event.target.value;
-		questionActions.updateQuestion(initQuestion);
-	}
-
+		const { questionActions, question } = this.props;
+		const newQuestion = Object.assign({}, question);
+        
+        newQuestion.question = event.target.value;
+		questionActions.updateQuestion(newQuestion);
+	};
+    
+    handleInputFocus = (event) => {
+        event.stopPropagation();
+    };
+    
 	editCard = (event) => {
 		this.setState({ isEditing: true, onHover: false, isExpanded: true });
 		event.stopPropagation();
-	}
+	};
 
 	saveCard = (event) => {
-		const { question, initQuestions, questionActions } = this.props;
-		const changingQuestion = initQuestions.find(q => q.id === question.id);
+		const { question, questionActions } = this.props;
 
-		if (changingQuestion.answers.some(a => a.text === '') || changingQuestion.question === '')
-		openNotification('error', 'All fields should be filled')
-		else
-		questionActions.saveQuestion(changingQuestion, () => {this.setState({ isEditing: false, onHover: true })});
-
+		if (question.answers.some(a => a.text === '') || question.question === '') {
+            openNotification('error', 'All fields should be filled')
+		} else {
+            questionActions.addQuestion(question, () => {this.setState({ isEditing: false, onHover: true })});
+        }
 		event.stopPropagation();
-	}
+	};
 
 	cancelEditCard = () => {
 		const { question, questionActions } = this.props;
 		this.setState({ isEditing: false, onHover: true });
 
-		questionActions.updateQuestion(question);
-	}
+		questionActions.cancelUpdateQuestion(question);
+	};
 
 	handleDeleteCard = (event) => {
 		event.stopPropagation();
-	}
+	};
 
 	deleteCard = (event) => {
 		const { question, questionActions } = this.props;
 
-		const questionId = { id: question.id };
-		questionActions.deleteQuestion(questionId);
+		questionActions.deleteQuestion({ id: question.id });
 		event.stopPropagation();
-	}
+	};
 
 	onMouseEnterHandler = () => {
 		this.setState({ onHover: true });
-	}
+	};
 
 	onMouseLeaveHandler = () => {
 		this.setState({ onHover: false });
-	}
-
+	};
+	
 	addCard = () => {
-		console.log('addCard');
-	}
+        const { addQuestionForm, question } = this.props;
+        addQuestionForm(question.index + 1);
+	};
 
 	moveUp = () => {
         const { question, questionActions, order } = this.props;
@@ -101,7 +113,6 @@ class QuestionCard extends Component {
             newOrder.find(item => item.id === question.id).index--;
 		}
 		
-		debugger
         questionActions.changeOrder(newOrder);
 	};
 
@@ -125,17 +136,8 @@ class QuestionCard extends Component {
 
     render() {
 	    const { isEditing, isExpanded, onHover } = this.state;
-	    const { question, item, initQuestions, isAdding } = this.props;
-	    const initQuestion = initQuestions.find(q => q.id === question.id);
-
-		let questionType;
-		if (question.ownAnswer.text === '')
-			questionType = 'Options';
-		else if (question.answers.length)
-			questionType = 'Own answer and options';
-		else
-			questionType = 'Own answer';
-
+	    const { question, isAdding } = this.props;
+		
 	    return (
 	        <div className="card card-wrapper">
 		        {!isAdding ?
@@ -144,33 +146,35 @@ class QuestionCard extends Component {
 		             onMouseEnter={this.onMouseEnterHandler}
 		             onMouseLeave={this.onMouseLeaveHandler}
 		        >
-			        <p className="card-text">{item + 1}</p>
+			        <p className="card-text">{question.item}</p>
 			        {isEditing || question.isNew ?
 				        <div className="card-edit-wrapper">
 					        <Input
 						        size="large"
-						        value={initQuestion.question}
+						        value={question.question}
 						        className="card-edit-question"
 						        onChange={this.handleInputChange}
+								onFocus={this.handleInputFocus}
 					        />
-						        <Select
-							        size="large"
-							        defaultValue={questionType}
-							        onChange={this.handleSelectChange}
-							        className="card-edit-questionType"
-						        >
-							        <Option value="Own answer">Own answer</Option>
-							        <Option value="Options">Options</Option>
-							        <Option value="Own answer and options">Own answer and options</Option>
-						        </Select>
-						        <p className="card-text card-text-questionType">{questionType}</p>
-						        <Button icon="check" className="card-edit-button" onClick={this.saveCard}/>
-						        <Button icon="close" className="card-edit-button" onClick={this.cancelEditCard}/>
+							<Select
+								size="large"
+								defaultValue={question.type}
+								onChange={this.handleSelectChange}
+								className="card-edit-questionType"
+								onFocus={this.handleSelectFocus}
+							>
+								<Option value="own">Own answer</Option>
+								<Option value="options">Options</Option>
+								<Option value="ownAndOptions">Own answer and options</Option>
+							</Select>
+							{/*<p className="card-text card-text-questionType">{question.type}</p>*/}
+							<Button icon="check" className="card-edit-button" onClick={this.saveCard}/>
+							<Button icon="close" className="card-edit-button" onClick={this.cancelEditCard}/>
 				        </div>
 			            :
 				        <div className="card-edit-wrapper">
 				            <p className="card-text card-text-question">{question.question}</p>
-							<p className="card-text card-text-questionType">{questionType}</p>
+							<p className="card-text card-text-questionType">{question.type}</p>
 
 					        <Button
 						        icon="edit"
@@ -217,18 +221,16 @@ class QuestionCard extends Component {
 				        />
 			        </div>
 		            : null}
-		        {isExpanded && question.answers.length ?
+		        {isExpanded ?
 			        <div className="answers-wrapper">
-				        {initQuestion.answers.map((answer, i) => {
-					        if (answer) {
-						        return <QuestionCardAnswer
-							        key={question.id + i}
-							        question={initQuestion}
-							        answer={answer}
-							        isEditing={isEditing}
-						        />
-					        }
-				        })}
+				        {question.answers.map((answer, i) => (
+							<QuestionCardAnswer
+								key={question.id + i}
+								question={question}
+								answer={answer}
+								isEditing
+							/>
+						))}
 					</div>
 		            : null}
 	        </div>
@@ -237,7 +239,7 @@ class QuestionCard extends Component {
 }
 
 const mapStateToProps = (state) => ({
-	initQuestions: state.question.initQuestions,
+	// initQuestions: state.question.initQuestions,
 	order: state.question.order,
 });
 

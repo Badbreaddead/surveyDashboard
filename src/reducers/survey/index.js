@@ -3,7 +3,8 @@ import {
 	CHOOSE_SURVEY,
 	SAVE_SURVEY,
 	DELETE_SURVEY,
-	CHANGE_SURVEY_STATUS
+	CHANGE_SURVEY_STATUS,
+    ADD_SURVEY
 } from '../../actions/survey';
 
 const initialState = {
@@ -117,6 +118,29 @@ function surveyReducer(state = initialState, action) {
 				isFetching: false,
 			});
 		}
+        
+        case `${ADD_SURVEY}_PENDING`: {
+            return Object.assign({}, state, {
+                isFetching: true
+            });
+        }
+        case `${ADD_SURVEY}_FULFILLED`: {
+            const currentSurvey = action.payload;
+            const surveys = [...state.surveys];
+            
+            surveys.push(currentSurvey);
+            
+            return Object.assign({}, state, {
+                isFetching: false,
+                currentSurvey,
+                surveys,
+            });
+        }
+        case `${ADD_SURVEY}_REJECTED`: {
+            return Object.assign({}, state, {
+                isFetching: false,
+            });
+        }
 		default:
 			return state;
 	}

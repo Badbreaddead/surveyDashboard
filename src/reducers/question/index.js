@@ -5,7 +5,7 @@ import {
     UPDATE_ORDER,
 	SAVE_QUESTION,
 	ADD_QUESTION,
-	ADD_FIRST_QUESTION,
+    ADD_QUESTION_FORM,
 } from '../../actions/question';
 
 const initialState = {
@@ -56,6 +56,7 @@ function questionReducer(state = initialState, action) {
 			return Object.assign({}, state, {
 				isFetching: false,
 				questions,
+				initQuestions: questions
 			});
 		}
 		case `${DELETE_QUESTION}_REJECTED`: {
@@ -64,18 +65,18 @@ function questionReducer(state = initialState, action) {
 			});
 		}
 		case `${UPDATE_QUESTION}`: {
-			const initQuestions = [...state.initQuestions];
+			const questions = [...state.questions];
 
 			let index;
-			initQuestions.forEach((question, i) => {
+            questions.forEach((question, i) => {
 				if (question.id === action.payload.id) {
 					index = i;
 				}
 			});
-			initQuestions[index] = action.payload;
+            questions[index] = action.payload;
 
 			return Object.assign({}, state, {
-				initQuestions,
+                questions
 			});
 		}
 		case `${SAVE_QUESTION}_PENDING`: {
@@ -97,6 +98,7 @@ function questionReducer(state = initialState, action) {
 			return Object.assign({}, state, {
 				isFetching: false,
 				questions,
+				initQuestions: questions
 			});
 		}
 		case `${SAVE_QUESTION}_REJECTED`: {
@@ -111,12 +113,14 @@ function questionReducer(state = initialState, action) {
 		}
 		case `${ADD_QUESTION}_FULFILLED`: {
 			const questions = [...state.questions];
-
-			questions.push(action.payload);
-
+            
+            let question = questions.find(q => q.id === 1);
+            question = action.payload;
+            
 			return Object.assign({}, state, {
 				isFetching: false,
 				questions,
+				initQuestions: questions
 			});
 		}
 		case `${ADD_QUESTION}_REJECTED`: {
@@ -124,13 +128,21 @@ function questionReducer(state = initialState, action) {
 				isFetching: false,
 			});
 		}
-		case `${ADD_FIRST_QUESTION}`: {
-			const questions = [...state.questions];
-
-			questions.push(action.payload);
-
+		case `${ADD_QUESTION_FORM}`: {
+			let questions = [...state.questions];
+			const question = action.payload;
+			if (question.index === 1) {
+                questions.push(action.payload);
+			} else {
+				let index;
+                const removed = questions.splice(index, questions.length);
+                removed.forEach(a => a.index++);
+                questions.push(question);
+                questions = questions.concat(removed);
+			}
+			
 			return Object.assign({}, state, {
-				questions,
+				questions
 			});
 		}
         

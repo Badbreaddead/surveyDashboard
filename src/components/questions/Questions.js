@@ -42,27 +42,27 @@ class Questions extends Component {
 		};
 
 		surveyActions.changeSurveyStatus(request);
-	}
+	};
 
-	handleSelectChange = (value) => {
+	handleSelectChange = (id) => {
 		const { surveyActions, questionActions, surveys } = this.props;
 
-		questionActions.getQuestions({ survey: surveys[value].id });
-		surveyActions.chooseSurvey(surveys[value]);
-	}
+		questionActions.getQuestions({ survey: id });
+		surveyActions.chooseSurvey(surveys.find(s => s.id === id));
+	};
 
 	handleNameChange = (event) => {
 		this.setState({ surveyNameTemporary: event.target.value })
-	}
+	};
 
 	handleThankYouChange = (event) => {
 		this.setState({ thankYouTemporary: event.target.value });
-	}
+	};
 
 	editSurvey = () => {
 		const { currentSurvey } = this.props;
 		this.setState({ isEditing: true, surveyNameTemporary: currentSurvey.name, thankYouTemporary: currentSurvey.thankYou });
-	}
+	};
 
 	saveSurvey = () => {
 		const { currentSurvey, surveyActions } = this.props;
@@ -74,19 +74,20 @@ class Questions extends Component {
 			thankYou: thankYouTemporary,
 		};
 
-		if (changedSurvey.name === '' || changedSurvey.thankYou === '')
-			openNotification('error', 'All fields should be filled')
-		else
-		surveyActions.saveSurvey(changedSurvey, () => {this.setState({ isEditing: false })});
-	}
+		if (!changedSurvey.name || !changedSurvey.thankYou) {
+            openNotification('error', 'All fields should be filled');
+		} else {
+            surveyActions.saveSurvey(changedSurvey, () => {this.setState({ isEditing: false })});
+        }
+	};
 
 	cancelEditSurvey = () => {
 		this.setState({ isEditing: false })
-	}
+	};
 
 	addSurvey = () => {
 		this.setState({ isAdding: true, surveyNameTemporary: '', thankYouTemporary: '' })
-	}
+	};
 
 	confirmAddSurvey = () => {
 		const { surveyActions } = this.props;
@@ -98,27 +99,29 @@ class Questions extends Component {
 		};
 
 		surveyActions.addSurvey(newSurvey, () => {this.setState({ isAdding: false })});
-	}
+	};
 
 	cancelAddSurvey = () => {
 		this.setState({ isAdding: false })
-	}
+	};
 
 	exportGoogle = () => {
 	}
 
 	sendUnanswered = () => {
 	}
-
-	addFirstQuestion = () => {
+    
+    addQuestionForm = (index = 1) => {
 		const { currentSurvey, questionActions } = this.props;
-		const firstQuestion = {
-			survey: currentSurvey.name,
+		const question = {
+			id: 1,
+			survey: currentSurvey.id,
 			question: "First question",
+			index: index,
 			answers: [
 				{
-					id: 0,
-					answer: "First answer",
+					id: 1,
+					text: "First answer",
 				}
 			],
 			ownAnswer: {
@@ -128,9 +131,9 @@ class Questions extends Component {
 			isNew: true,
 		};
 
-		questionActions.addFirstQuestion(firstQuestion);
-	}
-
+		questionActions.addQuestionForm(question);
+	};
+	
     render() {
 	    const { isEditing, isAdding, surveyNameTemporary, thankYouTemporary } = this.state;
 	    const { questions, surveys, currentSurvey, isFetching } = this.props;
@@ -183,13 +186,13 @@ class Questions extends Component {
 								    />
 							        :
 								    <Select
-									    value={currentSurvey.name}
+									    value={currentSurvey.id}
 									    size="large"
 									    className="questions-select"
 								        onChange={this.handleSelectChange}
 								    >
-									    {surveys.map((survey, i) => {
-										    return <Option key={i}>{survey.name}</Option>
+									    {surveys.map(survey => {
+										    return <Option value={survey.id} key={survey.id}>{survey.name}</Option>
 									    })}
 								    </Select>
 							    }
@@ -298,8 +301,13 @@ class Questions extends Component {
 						    </div>
 						    <div className="questions-wrapper">
 						    {questions.length ?
-							    questions.map((question, i) => {
-								    return <QuestionCard item={i} key={i} question={question} isAdding={isAdding}/>
+							    questions.map(question => {
+								    return <QuestionCard
+												key={question.id}
+												question={question}
+												isAdding={isAdding}
+												addQuestionForm={this.addQuestionForm}
+											/>
 							    })
 							    :
 							    <div className="card card-wrapper">
@@ -307,7 +315,7 @@ class Questions extends Component {
 									    <Button
 										    icon="plus"
 										    className="modify-button"
-										    onClick={this.addFirstQuestion}
+										    onClick={this.addQuestionForm}
 									    />
 								    </div>
 							    </div>
