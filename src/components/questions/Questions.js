@@ -53,10 +53,12 @@ class Questions extends Component {
 
 	handleNameChange = (event) => {
 		this.setState({ surveyNameTemporary: event.target.value })
+		debugger
 	}
 
 	handleThankYouChange = (event) => {
 		this.setState({ thankYouTemporary: event.target.value });
+		debugger
 	}
 
 	editSurvey = () => {
@@ -69,8 +71,8 @@ class Questions extends Component {
 
 		const changedSurvey = {
 			id: currentSurvey.id,
-			name: surveyNameTemporary || currentSurvey.name,
-			thankYou: thankYouTemporary || currentSurvey.thankYou
+			name: surveyNameTemporary,
+			thankYou: thankYouTemporary,
 		};
 
 		if (changedSurvey.name === '' || changedSurvey.thankYou === '')
