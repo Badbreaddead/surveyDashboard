@@ -3,12 +3,16 @@ import fetch from 'isomorphic-fetch';
 import config from '../../config';
 import {getHeaders, getParams} from '../utils';
 import {openNotification} from '../notification';
+import {
+	GET_QUESTIONS,
+} from '../question';
 
 export const GET_SURVEYS = 'GET_SURVEYS';
 export const CHOOSE_SURVEY = 'CHOOSE_SURVEY';
 export const SAVE_SURVEY = 'SAVE_SURVEY';
 export const ADD_SURVEY = 'ADD_SURVEY';
 export const DELETE_SURVEY = 'DELETE_SURVEY';
+export const CHANGE_SURVEY_STATUS = 'CHANGE_SURVEY_STATUS';
 
 export default class SurveysActions {
 
@@ -27,9 +31,29 @@ export default class SurveysActions {
 					}
 					return response.json();
 				})
-				.then(json => {
+				.then(jsonSurveys => {
 					if (!isError) {
-						dispatch({type: `${GET_SURVEYS}_FULFILLED`, payload: json});
+						dispatch({type: `${GET_QUESTIONS}_PENDING`});
+						fetch(`${config.baseUrl}questions`,
+							{ method: 'POST',
+								headers: getHeaders(),
+								body: JSON.stringify({ survey: jsonSurveys.data[0].id })
+							})
+							.then(response => {
+								if (response.status >= 400) {
+									isError = true;
+									dispatch({type: `${GET_QUESTIONS}_REJECTED`});
+								}
+								return response.json();
+							})
+							.then(json => {
+								if (!isError) {
+									dispatch({type: `${GET_QUESTIONS}_FULFILLED`, payload: json});
+									dispatch({type: `${GET_SURVEYS}_FULFILLED`, payload: jsonSurveys});
+								} else {
+									openNotification('error', json);
+								}
+							})
 					} else {
 						openNotification('error', json.err);
 					}
@@ -42,6 +66,7 @@ export default class SurveysActions {
 	};
 
 	chooseSurvey = (data) => {
+
 		return {
 			type: `${CHOOSE_SURVEY}`,
 			payload: data,
@@ -80,8 +105,40 @@ export default class SurveysActions {
 		};
 	};
 
+	changeSurveyStatus = (changingSurvey) => {
+		let isError = false;
+		return dispatch => {
+			dispatch({type: `${CHANGE_SURVEY_STATUS}_PENDING`});
+			fetch(`${config.baseUrl}surveys/activate`,
+				{ method: 'PUT',
+					headers: getHeaders(),
+					body: JSON.stringify(changingSurvey)
+				})
+				.then(response => {
+					if (response.status >= 400) {
+						isError = true;
+						dispatch({type: `${CHANGE_SURVEY_STATUS}_REJECTED`});
+					}
+					return response.json();
+				})
+				.then(json => {
+					if (!isError) {
+						dispatch({type: `${CHANGE_SURVEY_STATUS}_FULFILLED`, payload: changingSurvey});
+						openNotification('success', json.msg);
+					} else {
+						openNotification('error', json.err);
+					}
+				})
+				.catch(e => {
+					dispatch({type: `${CHANGE_SURVEY_STATUS}_REJECTED`});
+					openNotification('error', e.message);
+				});
+		};
+	};
+
 	addSurvey = (newSurvey, callback) => {
 		let isError = false;
+
 		return dispatch => {
 			dispatch({type: `${ADD_SURVEY}_PENDING`});
 			fetch(`${config.baseUrl}surveys/create`,

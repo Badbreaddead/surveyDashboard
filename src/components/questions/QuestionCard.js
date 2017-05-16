@@ -5,6 +5,7 @@ import { Input, Select, Button, Popconfirm } from 'antd';
 
 import QuestionCardAnswer from './QuestionCardAnswer';
 import QuestionActions from '../../actions/question';
+import { openNotification } from '../../actions/notification';
 
 const Option = Select.Option;
 
@@ -32,11 +33,11 @@ class QuestionCard extends Component {
 	}
 
 	handleInputChange = (event) => {
-		const { questionActions } = this.props;
-		let question = JSON.parse(JSON.stringify(this.props.question));
+		const { questionActions, initQuestions, question } = this.props;
+		const initQuestion = JSON.parse(JSON.stringify(initQuestions.find(q => q.id === question.id)));
 
-		question.question = event.target.value;
-		questionActions.updateQuestion(question);
+		initQuestion.question = event.target.value;
+		questionActions.updateQuestion(initQuestion);
 	}
 
 	editCard = (event) => {
@@ -44,16 +45,23 @@ class QuestionCard extends Component {
 		event.stopPropagation();
 	}
 
-	saveCard = () => {
+	saveCard = (event) => {
 		const { question, initQuestions, questionActions } = this.props;
 		const changingQuestion = initQuestions.find(q => q.id === question.id);
 
+		if (changingQuestion.answers.some(a => a.text === '') || changingQuestion.question === '')
+		openNotification('error', 'All fields should be filled')
+		else
 		questionActions.saveQuestion(changingQuestion, () => {this.setState({ isEditing: false, onHover: true })});
+
 		event.stopPropagation();
 	}
 
 	cancelEditCard = () => {
+		const { question, questionActions } = this.props;
 		this.setState({ isEditing: false, onHover: true });
+
+		questionActions.updateQuestion(question);
 	}
 
 	handleDeleteCard = (event) => {
@@ -90,7 +98,8 @@ class QuestionCard extends Component {
 
     render() {
 	    const { isEditing, isExpanded, onHover } = this.state;
-	    const { question, item } = this.props;
+	    const { question, item, initQuestions } = this.props;
+	    const initQuestion = initQuestions.find(q => q.id === question.id);
 
 		let questionType;
 		if (question.ownAnswer.text === '')
@@ -108,11 +117,11 @@ class QuestionCard extends Component {
 		             onMouseLeave={this.onMouseLeaveHandler}
 		        >
 					<p className="card-text">{item + 1}</p>
-			        {isEditing ?
+			        {isEditing || question.isNew ?
 				        <div className="card-edit-wrapper">
 					        <Input
 						        size="large"
-						        defaultValue={question.question}
+						        value={initQuestion.question}
 						        className="card-edit-question"
 						        onChange={this.handleInputChange}
 					        />
@@ -184,13 +193,15 @@ class QuestionCard extends Component {
 		            : null}
 		        {isExpanded && question.answers.length ?
 			        <div className="answers-wrapper">
-				        {question.answers.map((answer, i) => {
-							return <QuestionCardAnswer
-								key={question.id + i}
-								question={question}
-								answer={answer}
-								isEditing={isEditing}
-							/>
+				        {initQuestion.answers.map((answer, i) => {
+					        if (answer) {
+						        return <QuestionCardAnswer
+							        key={question.id + i}
+							        question={initQuestion}
+							        answer={answer}
+							        isEditing={isEditing}
+						        />
+					        }
 				        })}
 					</div>
 		            : null}

@@ -2,7 +2,8 @@ import {
 	GET_SURVEYS,
 	CHOOSE_SURVEY,
 	SAVE_SURVEY,
-	DELETE_SURVEY
+	DELETE_SURVEY,
+	CHANGE_SURVEY_STATUS
 } from '../../actions/survey';
 
 const initialState = {
@@ -30,6 +31,7 @@ function surveyReducer(state = initialState, action) {
 			});
 		}
 		case `${CHOOSE_SURVEY}`: {
+
 			return Object.assign({}, state, {
 				currentSurvey: action.payload,
 			});
@@ -82,6 +84,35 @@ function surveyReducer(state = initialState, action) {
 			});
 		}
 		case `${DELETE_SURVEY}_REJECTED`: {
+			return Object.assign({}, state, {
+				isFetching: false,
+			});
+		}
+		case `${CHANGE_SURVEY_STATUS}_PENDING`: {
+			return Object.assign({}, state, {
+				isFetching: true
+			});
+		}
+		case `${CHANGE_SURVEY_STATUS}_FULFILLED`: {
+			let surveys = [...state.surveys];
+			let currentSurvey = Object.assign({}, state.currentSurvey);
+			let index;
+
+			surveys.forEach((survey, i) => {
+				if (survey.id === action.payload.id) {
+					index = i;
+				}
+			});
+			surveys[index].isActive = action.payload.isActive;
+			currentSurvey.isActive = action.payload.isActive;
+
+			return Object.assign({}, state, {
+				isFetching: false,
+				currentSurvey,
+				surveys,
+			});
+		}
+		case `${CHANGE_SURVEY_STATUS}_REJECTED`: {
 			return Object.assign({}, state, {
 				isFetching: false,
 			});

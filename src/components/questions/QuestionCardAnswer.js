@@ -27,6 +27,7 @@ class QuestionCardAnswers extends Component {
 			}
 		});
 		question.answers[index].text = event.target.value;
+
 		questionActions.updateQuestion(question);
 	}
 
@@ -47,7 +48,7 @@ class QuestionCardAnswers extends Component {
 		answersRight.forEach(a => a.id--);
 		question.answers = answersLeft.concat(answersRight);
 
-		questionActions.saveQuestion(question);
+		questionActions.updateQuestion(question);
 	}
 
 	onMouseEnterHandler = () => {
@@ -71,10 +72,10 @@ class QuestionCardAnswers extends Component {
 
 		const answersRight = question.answers.splice(index);
 		answersRight.forEach(a => a.id++);
-		question.answers.push({ id: index + 1, text: 'Default answer' })
-		question.answers.push(answersRight);
+		question.answers.push({ id: index + 1, text: 'Default answer', isNew: true })
+		question.answers = question.answers.concat(answersRight);
 
-		questionActions.saveQuestion(question);
+		questionActions.updateQuestion(question);
 	}
 
 	moveUp = () => {
@@ -99,9 +100,8 @@ class QuestionCardAnswers extends Component {
 			question.answers.forEach(a => a.id--);
 			question.answers.push(removedFirst[0]);
 		}
-		debugger
 
-		questionActions.saveQuestion(question);
+		questionActions.updateQuestion(question);
 	}
 
 	moveDown = () => {
@@ -124,11 +124,10 @@ class QuestionCardAnswers extends Component {
 			question.answers[index].id = 1;
 			const removedLast = question.answers.pop();
 			question.answers.forEach(a => a.id++);
-			question.answers.splice(0, 0, removedLast[0]);
+			question.answers.splice(0, 0, removedLast);
 		}
-		debugger
 
-		questionActions.saveQuestion(question);
+		questionActions.updateQuestion(question);
 	}
 
     render() {
@@ -138,22 +137,26 @@ class QuestionCardAnswers extends Component {
 	    return (
 	        <div className="card-answer">
 		        <div onMouseEnter={this.onMouseEnterHandler} onMouseLeave={this.onMouseLeaveHandler}>
-					<p className="card-text">{answer.id}</p>
+					<p className="card-text card-text-index">{answer.id}</p>
 			        {isEditing ?
-				        <Input
-					        size="large"
-					        defaultValue={answer.text}
-				            className="card-edit-answer"
-				            onChange={this.handleInputChange}
-				        />
+				        <div className="card-answer-wrapper">
+					        <Input
+						        size="large"
+						        value={answer.text}
+					            className="card-edit-answer"
+					            onChange={this.handleInputChange}
+					        />
+					        <div className="modify-button-wrap">
+						        <Button icon="delete" className="card-delete-button" onClick={this.deleteCardAnswers}/>
+					        </div>
+				        </div>
 			            :
-				        <p className="card-text card-text-answer">{answer.text}</p>
+				        <div className="card-answer-wrapper">
+				            <p className="card-text card-text-answer">{answer.text}</p>
+				        </div>
 			        }
-			        <div className="modify-button-wrap">
-				        <Button icon="delete" className="card-delete-button" onClick={this.deleteCardAnswers}/>
-			        </div>
 		        </div>
-		        {onHover ?
+		        {onHover &&  isEditing ?
 			        <div>
 				        <div className="card-up-down-wrapper">
 					        <Button

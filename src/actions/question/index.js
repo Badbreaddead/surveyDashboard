@@ -9,16 +9,20 @@ export const DELETE_QUESTION = 'DELETE_QUESTION';
 export const UPDATE_QUESTION = 'UPDATE_QUESTION';
 export const SAVE_QUESTION = 'SAVE_QUESTION';
 export const ADD_QUESTION = 'ADD_QUESTION';
+export const ADD_FIRST_QUESTION = 'ADD_FIRST_QUESTION';
+export const UPDATE_INIT_QUESTIONS = 'UPDATE_INIT_QUESTIONS';
 
 export default class QuestionActions {
 
-	getQuestions = () => {
+	getQuestions = (survey) => {
 		let isError = false;
+
 		return dispatch => {
 			dispatch({type: `${GET_QUESTIONS}_PENDING`});
 			fetch(`${config.baseUrl}questions`,
-				{ method: 'GET',
+				{ method: 'POST',
 					headers: getHeaders(),
+					body: JSON.stringify(survey)
 				})
 				.then(response => {
 					if (response.status >= 400) {
@@ -43,6 +47,7 @@ export default class QuestionActions {
 
 	deleteQuestion = (id) => {
 		let isError = false;
+
 		return dispatch => {
 			dispatch({type: `${DELETE_QUESTION}_PENDING`});
 			fetch(`${config.baseUrl}questions/remove`,
@@ -81,6 +86,7 @@ export default class QuestionActions {
 
 	saveQuestion = (changingQuestion, callback) => {
 		let isError = false;
+
 		return dispatch => {
 			dispatch({type: `${SAVE_QUESTION}_PENDING`});
 			fetch(`${config.baseUrl}questions/update`,
@@ -113,6 +119,7 @@ export default class QuestionActions {
 
 	addQuestion = (newQuestion, callback) => {
 		let isError = false;
+
 		return dispatch => {
 			dispatch({type: `${ADD_QUESTION}_PENDING`});
 			fetch(`${config.baseUrl}questions/create`,
@@ -141,5 +148,12 @@ export default class QuestionActions {
 					openNotification('error', e.message);
 				});
 		};
+	};
+
+	addFirstQuestion = (data) => {
+		return {
+			type: `${ADD_FIRST_QUESTION}`,
+			payload: data,
+		}
 	};
 }

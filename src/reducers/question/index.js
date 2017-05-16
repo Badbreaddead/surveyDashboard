@@ -4,6 +4,7 @@ import {
 	UPDATE_QUESTION,
 	SAVE_QUESTION,
 	ADD_QUESTION,
+	ADD_FIRST_QUESTION,
 } from '../../actions/question';
 
 const initialState = {
@@ -107,7 +108,7 @@ function questionReducer(state = initialState, action) {
 			const questions = [...state.questions];
 
 			questions.push(action.payload);
-debugger
+
 			return Object.assign({}, state, {
 				isFetching: false,
 				questions,
@@ -116,6 +117,15 @@ debugger
 		case `${ADD_QUESTION}_REJECTED`: {
 			return Object.assign({}, state, {
 				isFetching: false,
+			});
+		}
+		case `${ADD_FIRST_QUESTION}`: {
+			const questions = [...state.questions];
+
+			questions.push(action.payload);
+
+			return Object.assign({}, state, {
+				questions,
 			});
 		}
 		default:

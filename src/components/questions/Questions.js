@@ -6,6 +6,7 @@ import { Select, Button, Input, Spin, Tooltip, Popconfirm } from 'antd';
 import QuestionCard from './QuestionCard';
 import QuestionActions from '../../actions/question';
 import SurveyActions from '../../actions/survey';
+import { openNotification } from '../../actions/notification';
 
 const Option = Select.Option;
 
@@ -16,14 +17,14 @@ class Questions extends Component {
 		this.state = {
 			isEditing: false,
 			isAdding: false,
-			active: true,
+			surveyNameTemporary: 'SurveyName',
+			thankYouTemporary: 'Thank you',
 		};
 	}
 
 	componentWillMount () {
-		const { questionActions, surveyActions } = this.props;
+		const { surveyActions } = this.props;
 
-		questionActions.getQuestions();
 		surveyActions.getSurveys();
 	}
 
@@ -34,14 +35,19 @@ class Questions extends Component {
 	}
 
 	handleActivation = () => {
-		const { active } = this.state;
+		const { surveyActions, currentSurvey } = this.props;
+		const request = {
+			id: currentSurvey.id,
+			isActive: !currentSurvey.isActive,
+		};
 
-		this.setState({ active: !active })
+		surveyActions.changeSurveyStatus(request);
 	}
 
 	handleSelectChange = (value) => {
-		const { surveyActions, surveys } = this.props;
+		const { surveyActions, questionActions, surveys } = this.props;
 
+		questionActions.getQuestions({ survey: surveys[value].id });
 		surveyActions.chooseSurvey(surveys[value]);
 	}
 
@@ -67,6 +73,9 @@ class Questions extends Component {
 			thankYou: thankYouTemporary || currentSurvey.thankYou
 		};
 
+		if (changedSurvey.name === '' || changedSurvey.thankYou === '')
+			openNotification('error', 'All fields should be filled')
+		else
 		surveyActions.saveSurvey(changedSurvey, () => {this.setState({ isEditing: false })});
 	}
 
@@ -115,13 +124,14 @@ class Questions extends Component {
 				text: "your answer",
 			},
 			type: "ownAndOptions",
+			isNew: true,
 		};
 
-		questionActions.addQuestion(firstQuestion);
+		questionActions.addFirstQuestion(firstQuestion);
 	}
 
     render() {
-	    const { isEditing, isAdding, active } = this.state;
+	    const { isEditing, isAdding } = this.state;
 	    const { questions, surveys, currentSurvey, isFetching } = this.props;
 
 	    return (
@@ -155,7 +165,7 @@ class Questions extends Component {
 									    mouseEnterDelay={1}
 								    >
 									    <Button
-										    type={active ? 'primary' : 'default'}
+										    type={currentSurvey.isActive ? 'primary' : 'default'}
 										    icon="poweroff"
 										    className="modify-button"
 										    onClick={this.handleActivation}
@@ -286,10 +296,9 @@ class Questions extends Component {
 							    </div>
 						    </div>
 						    <div className="questions-wrapper">
-						    {questions.some(q => q.survey === currentSurvey.name) ? questions.map((question, i) => {
-								    if (question.survey === currentSurvey.name) {
-									    return <QuestionCard item={i} key={i} question={question}/>
-								    }
+						    {questions.length ?
+							    questions.map((question, i) => {
+								    return <QuestionCard item={i} key={i} question={question}/>
 							    })
 							    :
 							    <div className="card card-wrapper">
@@ -299,12 +308,12 @@ class Questions extends Component {
 										    className="modify-button"
 										    onClick={this.addFirstQuestion}
 									    />
-							        </div>
+								    </div>
 							    </div>
 						    }
 						    </div>
 					    </div>
-					    : null}
+				    : null}
 				</div>
 		    </Spin>
         );
