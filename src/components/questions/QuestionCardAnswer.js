@@ -152,7 +152,7 @@ class QuestionCardAnswers extends Component {
 				        </div>
 			        }
 		        </div>
-		        {onHover &&  isEditing ?
+		        {onHover &&  (isEditing || question.isNew) ?
 			        <div>
 				        <div className="card-up-down-wrapper">
 					        <Button

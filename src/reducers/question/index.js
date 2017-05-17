@@ -151,7 +151,7 @@ function questionReducer(state = initialState, action) {
 		case `${ADD_QUESTION}_FULFILLED`: {
 			const questions = [...state.questions];
 
-            let question = questions.find(q => q.id === 1);
+            let question = questions.find(q => q.id === 1) || questions.find(q => q.id === 2);
             question = action.payload;
 
 			return Object.assign({}, state, {
@@ -168,7 +168,8 @@ function questionReducer(state = initialState, action) {
 		case `${ADD_QUESTION_FORM}`: {
 			let questions = [...state.questions];
 			const question = action.payload;
-			if (question.isNew) {
+			debugger
+			if (question.id === 2) {
                 questions.push(question);
 			} else {
                 const removed = questions.splice(question.index - 1, questions.length);

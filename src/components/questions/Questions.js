@@ -86,7 +86,7 @@ class Questions extends Component {
 	};
 
 	addSurvey = () => {
-		this.setState({ isAdding: true, surveyNameTemporary: '', thankYouTemporary: '' })
+		this.setState({ isAdding: true, surveyNameTemporary: 'SurveyName', thankYouTemporary: 'Thank you' })
 	};
 
 	confirmAddSurvey = () => {
@@ -114,7 +114,7 @@ class Questions extends Component {
     addQuestionForm = (index) => {
 		const { currentSurvey, questionActions } = this.props;
 		const question = {
-			id: 1,
+			id: index.target ? 2 : 1,
 			survey: currentSurvey.id,
 			question: "Question",
 			index: index.target ? 1 : index + 1,
@@ -307,7 +307,7 @@ class Questions extends Component {
 												key={question.id}
 												question={question}
 												isAddingSurvey={isAdding}
-												forceExpanded={question.id === 1 ? true : false}
+												forceExpanded={question.isNew}
 												addQuestionForm={this.addQuestionForm}
 											/>
 							    })

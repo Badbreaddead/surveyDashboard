@@ -145,7 +145,7 @@ export default class QuestionActions {
 						newQuestion.isNew = false;
 						let index;
 						order.forEach((q, i) => {
-							if (q.id === 1) {
+							if (q.id === 1 || q.id === 2) {
 								index = i;
 							}
 						});
@@ -200,6 +200,7 @@ export default class QuestionActions {
 	};
 	
 	addQuestionForm = (data) => {
+
 		return {
 			type: `${ADD_QUESTION_FORM}`,
 			payload: data,
