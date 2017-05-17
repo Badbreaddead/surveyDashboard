@@ -7,10 +7,13 @@ import {openNotification} from '../notification';
 export const GET_QUESTIONS = 'GET_QUESTIONS';
 export const DELETE_QUESTION = 'DELETE_QUESTION';
 export const UPDATE_QUESTION = 'UPDATE_QUESTION';
+export const CANCEL_UPDATE_QUESTION = 'CANCEL_UPDATE_QUESTION';
 export const UPDATE_ORDER = 'UPDATE_ORDER';
+export const SORT_QUESTIONS = 'SORT_QUESTIONS';
 export const SAVE_QUESTION = 'SAVE_QUESTION';
 export const ADD_QUESTION = 'ADD_QUESTION';
 export const ADD_QUESTION_FORM = 'ADD_QUESTION_FORM';
+export const REMOVE_QUESTIONS = 'REMOVE_QUESTIONS';
 export const UPDATE_INIT_QUESTIONS = 'UPDATE_INIT_QUESTIONS';
 
 export default class QuestionActions {
@@ -46,7 +49,7 @@ export default class QuestionActions {
 		};
 	};
     
-	deleteQuestion = (id) => {
+	deleteQuestion = (id, order) => {
 		let isError = false;
 
 		return dispatch => {
@@ -66,6 +69,7 @@ export default class QuestionActions {
 				.then(json => {
 					if (!isError) {
 						dispatch({type: `${DELETE_QUESTION}_FULFILLED`, payload: id});
+						dispatch(this.changeOrder(order, false));
 						openNotification('success', json.msg);
 					} else {
 						openNotification('error', json.err);
@@ -90,7 +94,7 @@ export default class QuestionActions {
 
 		return dispatch => {
 			dispatch({type: `${SAVE_QUESTION}_PENDING`});
-			fetch(`${config.baseUrl}questions/create`,
+			fetch(`${config.baseUrl}questions/update`,
 				{ method: 'PUT',
 					headers: getHeaders(),
 					body: JSON.stringify(changingQuestion)
@@ -118,7 +122,7 @@ export default class QuestionActions {
 		};
 	};
 
-	addQuestion = (newQuestion, callback) => {
+	addQuestion = (newQuestion, order, callback) => {
 		let isError = false;
 
 		return dispatch => {
@@ -138,6 +142,15 @@ export default class QuestionActions {
 				.then(json => {
 					if (!isError) {
                         newQuestion.id = json.id;
+						newQuestion.isNew = false;
+						let index;
+						order.forEach((q, i) => {
+							if (q.id === 1) {
+								index = i;
+							}
+						});
+						order[index].id = json.id;
+						dispatch(this.changeOrder(order, false));
 						dispatch({type: `${ADD_QUESTION}_FULFILLED`, payload: newQuestion});
 						openNotification('success', "Question added");
 						if (callback) callback();
@@ -152,9 +165,8 @@ export default class QuestionActions {
 		};
 	};
 	
-	changeOrder = (order) => {
+	changeOrder = (order, isNotify) => {
         let isError = false;
-        
         return dispatch => {
             dispatch({type: `${UPDATE_ORDER}_PENDING`});
             fetch(`${config.baseUrl}questions/order`,
@@ -173,6 +185,8 @@ export default class QuestionActions {
                 .then(json => {
                     if (!isError) {
                         dispatch({type: `${UPDATE_ORDER}_FULFILLED`, payload: order});
+	                    dispatch(this.sortQuestions());
+	                    if (isNotify)
                         openNotification('success', json.msg);
                     } else {
                         openNotification('error', json.err);
@@ -189,6 +203,19 @@ export default class QuestionActions {
 		return {
 			type: `${ADD_QUESTION_FORM}`,
 			payload: data,
+		}
+	};
+
+	cancelUpdateQuestion = (data) => {
+		return {
+			type: `${CANCEL_UPDATE_QUESTION}`,
+			payload: data,
+		}
+	};
+
+	sortQuestions = () => {
+		return {
+			type: `${SORT_QUESTIONS}`,
 		}
 	};
 }

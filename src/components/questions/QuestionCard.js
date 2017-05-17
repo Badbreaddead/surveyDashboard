@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 import { Input, Select, Button, Popconfirm } from 'antd';
 
 import QuestionCardAnswer from './QuestionCardAnswer';
+import QuestionCardDefaultAnswer from './QuestionCardDefaultAnswer';
 import QuestionActions from '../../actions/question';
 import { openNotification } from '../../actions/notification';
 
@@ -26,20 +27,36 @@ class QuestionCard extends Component {
 		if (!isEditing) {
 			this.setState({ isExpanded: !isExpanded });
 		}
-	}
+	};
 	
-	//TODO
 	handleSelectChange = (value) => {
         const { questionActions, question } = this.props;
         const newQuestion = Object.assign({}, question);
-        
+
+		if (value === 'own') {
+			newQuestion.answers = [];
+			newQuestion.ownAnswer.text = 'Own answer';
+		} else if (value === 'options') {
+			newQuestion.answers = [
+				{
+					id: 1,
+					text: "Answer",
+				}
+			];
+			newQuestion.ownAnswer.text = '';
+		} else {
+			newQuestion.answers = [
+				{
+					id: 1,
+					text: "Answer",
+				}
+			];
+			newQuestion.ownAnswer.text = 'Own answer';
+		}
         newQuestion.type = value;
+
         questionActions.updateQuestion(newQuestion);
 	};
-    
-    handleSelectFocus = (event) => {
-        event.stopPropagation();
-    };
 	
 	handleInputChange = (event) => {
 		const { questionActions, question } = this.props;
@@ -49,10 +66,6 @@ class QuestionCard extends Component {
 		questionActions.updateQuestion(newQuestion);
 	};
     
-    handleInputFocus = (event) => {
-        event.stopPropagation();
-    };
-    
 	editCard = (event) => {
 		this.setState({ isEditing: true, onHover: false, isExpanded: true });
 		event.stopPropagation();
@@ -61,19 +74,30 @@ class QuestionCard extends Component {
 	saveCard = (event) => {
 		const { question, questionActions } = this.props;
 
-		if (question.answers.some(a => a.text === '') || question.question === '') {
+		if (question.type !== 'own' && question.answers.some(a => a.text === '') ||
+			question.question === '' ||
+			(question.type !== 'options' && question.ownAnswer.text === '')) {
             openNotification('error', 'All fields should be filled')
 		} else {
-            questionActions.addQuestion(question, () => {this.setState({ isEditing: false, onHover: true })});
+			if (question.isNew) {
+				let order = [...this.props.order];
+				const removed = order.splice(question.index - 1, order.length, { id: 1, index: question.index });
+				removed.forEach(q => q.index++);
+				order = order.concat(removed);
+				questionActions.addQuestion(question, order, () => {this.setState({ isEditing: false, onHover: true })});
+			} else {
+				questionActions.saveQuestion(question, () => {this.setState({ isEditing: false, onHover: true })});
+			}
         }
 		event.stopPropagation();
 	};
 
-	cancelEditCard = () => {
+	cancelEditCard = (event) => {
 		const { question, questionActions } = this.props;
 		this.setState({ isEditing: false, onHover: true });
 
 		questionActions.cancelUpdateQuestion(question);
+		event.stopPropagation();
 	};
 
 	handleDeleteCard = (event) => {
@@ -81,9 +105,16 @@ class QuestionCard extends Component {
 	};
 
 	deleteCard = (event) => {
-		const { question, questionActions } = this.props;
+		const { question, questionActions, order } = this.props;
+		let newOrder = [...order];
 
-		questionActions.deleteQuestion({ id: question.id });
+		const index = newOrder.find(q => q.id === question.id).index;
+		newOrder.splice(index - 1, 1);
+		const newOrderRight = newOrder.splice(index - 1, newOrder.length);
+		newOrderRight.forEach(item => item.index--);
+		newOrder = newOrder.concat(newOrderRight);
+
+		questionActions.deleteQuestion({ id: question.id }, newOrder);
 		event.stopPropagation();
 	};
 
@@ -97,56 +128,80 @@ class QuestionCard extends Component {
 	
 	addCard = () => {
         const { addQuestionForm, question } = this.props;
-        addQuestionForm(question.index + 1);
+
+        addQuestionForm(question.index);
 	};
 
 	moveUp = () => {
         const { question, questionActions, order } = this.props;
 		const newOrder = [...order];
-        
-		if (order.find(item => item.id === question.id).index = 1) {
-            newOrder.forEach(item => item.index++);
+
+		if (order.find(item => item.id === question.id).index === 1) {
+            newOrder.forEach(item => item.index--);
             newOrder.find(item => item.id === question.id).index = order.length;
 		} else {
             const index = order.find(item => item.id === question.id).index;
             newOrder.find(item => item.index === index - 1).index++;
             newOrder.find(item => item.id === question.id).index--;
 		}
-		
-        questionActions.changeOrder(newOrder);
+		newOrder.sort(function (a, b) {
+			if (a.index > b.index) {
+				return 1;
+			}
+			if (a.index < b.index) {
+				return -1;
+			}
+		});
+
+        questionActions.changeOrder(newOrder, true);
 	};
 
 	moveDown = () => {
         const { question, questionActions, order } = this.props;
         const newOrder = [...order];
-        
-        if (order.find(item => item.id === question.id).index = order.length) {
-            newOrder.forEach(item => item.index--);
+
+        if (order.find(item => item.id === question.id).index === order.length) {
+            newOrder.forEach(item => item.index++);
             newOrder.find(item => item.id === question.id).index = 1;
         } else {
             const index = order.find(item => item.id === question.id).index;
-            newOrder.find(item => item.index === index - 1).index--;
+            newOrder.find(item => item.index === index + 1).index--;
             newOrder.find(item => item.id === question.id).index++;
         }
-        
-        
-        
-        questionActions.changeOrder(newOrder);
+		newOrder.sort(function (a, b) {
+			if (a.index > b.index) {
+				return 1;
+			}
+			if (a.index < b.index) {
+				return -1;
+			}
+		});
+
+        questionActions.changeOrder(newOrder, true);
 	};
 
     render() {
 	    const { isEditing, isExpanded, onHover } = this.state;
-	    const { question, isAdding } = this.props;
-		
+	    const { question, isAddingSurvey, forceExpanded } = this.props;
+	    let questionType;
+
+	    if (question.type === 'own') {
+		    questionType = 'Own answer';
+	    } else if (question.type === 'options'){
+		    questionType = 'Options';
+	    } else {
+		    questionType = 'Own answer and options';
+	    }
+
 	    return (
 	        <div className="card card-wrapper">
-		        {!isAdding ?
+		        {!isAddingSurvey ?
 		        <div className="card-question-wrapper"
 		             onClick={this.expandCard}
 		             onMouseEnter={this.onMouseEnterHandler}
 		             onMouseLeave={this.onMouseLeaveHandler}
 		        >
-			        <p className="card-text">{question.item}</p>
+			        <p className="card-text">{question.index}</p>
 			        {isEditing || question.isNew ?
 				        <div className="card-edit-wrapper">
 					        <Input
@@ -154,27 +209,27 @@ class QuestionCard extends Component {
 						        value={question.question}
 						        className="card-edit-question"
 						        onChange={this.handleInputChange}
-								onFocus={this.handleInputFocus}
 					        />
+					        {question.isNew ?
 							<Select
 								size="large"
 								defaultValue={question.type}
 								onChange={this.handleSelectChange}
 								className="card-edit-questionType"
-								onFocus={this.handleSelectFocus}
 							>
 								<Option value="own">Own answer</Option>
 								<Option value="options">Options</Option>
 								<Option value="ownAndOptions">Own answer and options</Option>
 							</Select>
-							{/*<p className="card-text card-text-questionType">{question.type}</p>*/}
+								:
+						        <p className="card-text card-text-questionType">{questionType}</p>}
 							<Button icon="check" className="card-edit-button" onClick={this.saveCard}/>
 							<Button icon="close" className="card-edit-button" onClick={this.cancelEditCard}/>
 				        </div>
 			            :
 				        <div className="card-edit-wrapper">
 				            <p className="card-text card-text-question">{question.question}</p>
-							<p className="card-text card-text-questionType">{question.type}</p>
+							<p className="card-text card-text-questionType">{questionType}</p>
 
 					        <Button
 						        icon="edit"
@@ -221,16 +276,23 @@ class QuestionCard extends Component {
 				        />
 			        </div>
 		            : null}
-		        {isExpanded ?
+		        {isExpanded || forceExpanded ?
 			        <div className="answers-wrapper">
 				        {question.answers.map((answer, i) => (
 							<QuestionCardAnswer
 								key={question.id + i}
 								question={question}
 								answer={answer}
-								isEditing
+								isEditing={isEditing}
 							/>
 						))}
+				        {question.type === 'ownAndOptions' || question.type === 'own' ?
+				        <QuestionCardDefaultAnswer
+					        key={question.id}
+					        question={question}
+					        answer={question.ownAnswer}
+					        isEditing={isEditing}
+				        /> : null}
 					</div>
 		            : null}
 	        </div>
@@ -239,7 +301,6 @@ class QuestionCard extends Component {
 }
 
 const mapStateToProps = (state) => ({
-	// initQuestions: state.question.initQuestions,
 	order: state.question.order,
 });
 
@@ -247,4 +308,4 @@ const mapDispatchToProps = (dispatch) => ({
 	questionActions: bindActionCreators(new QuestionActions, dispatch),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(QuestionCard);
+export default connect(mapStateToProps, mapDispatchToProps, null, { pure: false })(QuestionCard);

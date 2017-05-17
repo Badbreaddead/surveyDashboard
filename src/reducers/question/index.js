@@ -6,6 +6,9 @@ import {
 	SAVE_QUESTION,
 	ADD_QUESTION,
     ADD_QUESTION_FORM,
+	REMOVE_QUESTIONS,
+	CANCEL_UPDATE_QUESTION,
+	SORT_QUESTIONS,
 } from '../../actions/question';
 
 const initialState = {
@@ -79,6 +82,40 @@ function questionReducer(state = initialState, action) {
                 questions
 			});
 		}
+		case `${CANCEL_UPDATE_QUESTION}`: {
+			let questions = [...state.questions];
+			const initQuestions = [...state.initQuestions];
+			if (action.payload.isNew) {
+				if (action.payload.index === 1) {
+					questions = [];
+				} else {
+					const removed = questions.splice(action.payload.index - 1, questions.length);
+					removed.shift();
+					removed.forEach(a => a.index--);
+					questions = questions.concat(removed);
+				}
+			} else {
+				let index;
+				questions.forEach((question, i) => {
+					if (question.id === action.payload.id) {
+						index = i;
+					}
+				});
+				questions[index] = initQuestions[index];
+			}
+
+			return Object.assign({}, state, {
+				questions
+			});
+		}
+		case `${REMOVE_QUESTIONS}`: {
+			const questions = [];
+
+			return Object.assign({}, state, {
+				questions,
+				initQuestions: questions
+			});
+		}
 		case `${SAVE_QUESTION}_PENDING`: {
 			return Object.assign({}, state, {
 				isFetching: true
@@ -113,10 +150,10 @@ function questionReducer(state = initialState, action) {
 		}
 		case `${ADD_QUESTION}_FULFILLED`: {
 			const questions = [...state.questions];
-            
+
             let question = questions.find(q => q.id === 1);
             question = action.payload;
-            
+
 			return Object.assign({}, state, {
 				isFetching: false,
 				questions,
@@ -131,11 +168,10 @@ function questionReducer(state = initialState, action) {
 		case `${ADD_QUESTION_FORM}`: {
 			let questions = [...state.questions];
 			const question = action.payload;
-			if (question.index === 1) {
-                questions.push(action.payload);
+			if (question.isNew) {
+                questions.push(question);
 			} else {
-				let index;
-                const removed = questions.splice(index, questions.length);
+                const removed = questions.splice(question.index - 1, questions.length);
                 removed.forEach(a => a.index++);
                 questions.push(question);
                 questions = questions.concat(removed);
@@ -170,6 +206,16 @@ function questionReducer(state = initialState, action) {
                 isFetching: false,
             });
         }
+		case `${SORT_QUESTIONS}`: {
+			let questions = [...state.questions];
+
+			questions.forEach(q => q.index = state.order.find(item => item.id === q.id).index);
+
+			return Object.assign({}, state, {
+				questions,
+				initQuestions: questions
+			});
+		}
 		default:
 			return state;
 	}

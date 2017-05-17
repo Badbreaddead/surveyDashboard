@@ -5,6 +5,7 @@ import {getHeaders, getParams} from '../utils';
 import {openNotification} from '../notification';
 import {
 	GET_QUESTIONS,
+	REMOVE_QUESTIONS
 } from '../question';
 
 export const GET_SURVEYS = 'GET_SURVEYS';
@@ -33,27 +34,31 @@ export default class SurveysActions {
 				})
 				.then(jsonSurveys => {
 					if (!isError) {
-						dispatch({type: `${GET_QUESTIONS}_PENDING`});
-						fetch(`${config.baseUrl}questions`,
-							{ method: 'POST',
-								headers: getHeaders(),
-								body: JSON.stringify({ survey: jsonSurveys.data[0].id })
-							})
-							.then(response => {
-								if (response.status >= 400) {
-									isError = true;
-									dispatch({type: `${GET_QUESTIONS}_REJECTED`});
-								}
-								return response.json();
-							})
-							.then(json => {
-								if (!isError) {
-									dispatch({type: `${GET_QUESTIONS}_FULFILLED`, payload: json});
-									dispatch({type: `${GET_SURVEYS}_FULFILLED`, payload: jsonSurveys});
-								} else {
-									openNotification('error', json);
-								}
-							})
+						if (jsonSurveys.data[0]) {
+							dispatch({type: `${GET_QUESTIONS}_PENDING`});
+							fetch(`${config.baseUrl}questions`,
+								{ method: 'POST',
+									headers: getHeaders(),
+									body: JSON.stringify({ survey: jsonSurveys.data[0].id })
+								})
+								.then(response => {
+									if (response.status >= 400) {
+										isError = true;
+										dispatch({type: `${GET_QUESTIONS}_REJECTED`});
+									}
+									return response.json();
+								})
+								.then(json => {
+									if (!isError) {
+										dispatch({type: `${GET_QUESTIONS}_FULFILLED`, payload: json});
+										dispatch({type: `${GET_SURVEYS}_FULFILLED`, payload: jsonSurveys});
+									} else {
+										openNotification('error', json);
+									}
+								})
+						} else {
+							dispatch({type: `${GET_SURVEYS}_FULFILLED`, payload: jsonSurveys});
+						}
 					} else {
 						openNotification('error', json.err);
 					}
@@ -157,6 +162,7 @@ export default class SurveysActions {
 					if (!isError) {
                         newSurvey.id = json.id;
 						dispatch({type: `${ADD_SURVEY}_FULFILLED`, payload: newSurvey});
+						dispatch({type: `${REMOVE_QUESTIONS}`});
 						openNotification('success', "Survey created");
 						if (callback) callback();
 					} else {

@@ -4,6 +4,7 @@ import {connect} from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import QuestionActions from '../../actions/question';
+import { openNotification } from '../../actions/notification';
 
 const Option = Select.Option;
 
@@ -19,8 +20,7 @@ class QuestionCardAnswers extends Component {
 	handleInputChange = (event) => {
 		const { questionActions, answer, question } = this.props;
 		let newQuestion = Object.assign({}, question);
-		let index;
-        
+
         newQuestion.answers.find(a => a.id === answer.id).text = event.target.value;
 	
 		questionActions.updateQuestion(newQuestion);
@@ -28,7 +28,7 @@ class QuestionCardAnswers extends Component {
 
 	deleteCardAnswers = () => {
 		const { questionActions, answer, question } = this.props;
-        let newQuestion = Object.assign({}, question);
+        let newQuestion = JSON.parse(JSON.stringify(question));
 		let index;
         
         newQuestion.answers.forEach((a, i) => {
@@ -36,14 +36,16 @@ class QuestionCardAnswers extends Component {
 				index = i;
 			}
 		});
-		question.answers.splice(index, 1);
 
-		let answersLeft = newQuestion.answers.slice(0, index);
-		let answersRight = newQuestion.answers.slice(index);
-		answersRight.forEach(a => a.id--);
-        newQuestion.answers = answersLeft.concat(answersRight);
-
-		questionActions.updateQuestion(newQuestion);
+        if (question.answers.length > 1) {
+	        newQuestion.answers.splice(index, 1);
+	        let answersRight = newQuestion.answers.splice(index, newQuestion.answers.length);
+	        answersRight.forEach(a => a.id--);
+	        newQuestion.answers = newQuestion.answers.concat(answersRight);
+	        questionActions.updateQuestion(newQuestion);
+        } else {
+	        openNotification('error', "Can't delete the only one answer option")
+        }
 	};
 
 	onMouseEnterHandler = () => {
@@ -56,7 +58,7 @@ class QuestionCardAnswers extends Component {
 
 	addAnswer = () => {
 		const { questionActions, answer, question } = this.props;
-        let newQuestion = Object.assign({}, question);
+        let newQuestion = JSON.parse(JSON.stringify(question));
 		let index;
         
         newQuestion.answers.forEach((a, i) => {
@@ -64,18 +66,17 @@ class QuestionCardAnswers extends Component {
 				index = i;
 			}
 		});
-
-		const answersRight = newQuestion.answers.splice(index);
+		const answersRight = newQuestion.answers.splice(index + 1, newQuestion.answers.length);
 		answersRight.forEach(a => a.id++);
-        newQuestion.answers.push({ id: index + 1, text: 'Default answer', isNew: true });
+        newQuestion.answers.push({ id: index + 2, text: 'Answer' });
         newQuestion.answers = newQuestion.answers.concat(answersRight);
 
-		questionActions.updateQuestion(question);
+		questionActions.updateQuestion(newQuestion);
 	};
 
 	moveUp = () => {
 		const { questionActions, answer, question } = this.props;
-        let newQuestion = Object.assign({}, question);
+        let newQuestion = JSON.parse(JSON.stringify(question));
 		let index;
         
         newQuestion.answers.forEach((a, i) => {
@@ -87,7 +88,7 @@ class QuestionCardAnswers extends Component {
 		if (index !== 0) {
             newQuestion.answers[index].id--;
             newQuestion.answers[index - 1].id++;
-			const removed = question.answers.splice(index, 1);
+			const removed = newQuestion.answers.splice(index, 1);
             newQuestion.answers.splice(index - 1, 0, removed[0]);
 		} else {
             newQuestion.answers[index].id = newQuestion.answers.length;
@@ -101,7 +102,7 @@ class QuestionCardAnswers extends Component {
 
 	moveDown = () => {
 		const { questionActions, answer, question } = this.props;
-        let newQuestion = Object.assign({}, question);
+        let newQuestion = JSON.parse(JSON.stringify(question));
 		let index;
         
         newQuestion.answers.forEach((a, i) => {
@@ -113,11 +114,11 @@ class QuestionCardAnswers extends Component {
 		if (index !== newQuestion.answers.length - 1) {
             newQuestion.answers[index].id++;
             newQuestion.answers[index + 1].id--;
-			const removed = question.answers.splice(index, 1);
+			const removed = newQuestion.answers.splice(index, 1);
             newQuestion.answers.splice(index + 1, 0, removed[0]);
 		} else {
             newQuestion.answers[index].id = 1;
-			const removedLast = question.answers.pop();
+			const removedLast = newQuestion.answers.pop();
             newQuestion.answers.forEach(a => a.id++);
             newQuestion.answers.splice(0, 0, removedLast);
 		}
@@ -127,13 +128,13 @@ class QuestionCardAnswers extends Component {
 
     render() {
 	    const { onHover } = this.state;
-	    const { isEditing, answer } = this.props;
+	    const { isEditing, answer, question } = this.props;
 
 	    return (
 	        <div className="card-answer">
 		        <div onMouseEnter={this.onMouseEnterHandler} onMouseLeave={this.onMouseLeaveHandler}>
 					<p className="card-text card-text-index">{answer.id}</p>
-			        {isEditing ?
+			        {isEditing || question.isNew ?
 				        <div className="card-answer-wrapper">
 					        <Input
 						        size="large"

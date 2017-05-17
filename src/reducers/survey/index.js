@@ -20,6 +20,7 @@ function surveyReducer(state = initialState, action) {
 			});
 		}
 		case `${GET_SURVEYS}_FULFILLED`: {
+			const currentSurvey = action.payload.data[0] || '';
 			return Object.assign({}, state, {
 				isFetching: false,
 				surveys: action.payload.data,
@@ -129,11 +130,13 @@ function surveyReducer(state = initialState, action) {
             const surveys = [...state.surveys];
             
             surveys.push(currentSurvey);
-            
+	        const questions = [];
+
             return Object.assign({}, state, {
                 isFetching: false,
                 currentSurvey,
                 surveys,
+	            questions
             });
         }
         case `${ADD_SURVEY}_REJECTED`: {

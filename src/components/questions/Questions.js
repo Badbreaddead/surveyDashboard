@@ -111,21 +111,21 @@ class Questions extends Component {
 	sendUnanswered = () => {
 	}
     
-    addQuestionForm = (index = 1) => {
+    addQuestionForm = (index) => {
 		const { currentSurvey, questionActions } = this.props;
 		const question = {
 			id: 1,
 			survey: currentSurvey.id,
-			question: "First question",
-			index: index,
+			question: "Question",
+			index: index.target ? 1 : index + 1,
 			answers: [
 				{
 					id: 1,
-					text: "First answer",
+					text: "Answer",
 				}
 			],
 			ownAnswer: {
-				text: "your answer",
+				text: "Own answer",
 			},
 			type: "ownAndOptions",
 			isNew: true,
@@ -142,6 +142,7 @@ class Questions extends Component {
 		    <Spin className="questions-spinner" size="large" spinning={isFetching}>
 	    	    <div className="questions">
 				    {currentSurvey ?
+
 					    <div>
 						    <div className="questions-surveys">
 							    <div className="modify-button-wrap">
@@ -237,7 +238,7 @@ class Questions extends Component {
 							    {isAdding || isEditing ?
 								    <div className="modify-button-wrap modify-button-wrap-thank-you">
 									    <Tooltip
-										    placement="top"
+										    placement="topLeft"
 										    title='Message at the end of the survey'
 										    mouseEnterDelay={1}
 									    >
@@ -305,7 +306,8 @@ class Questions extends Component {
 								    return <QuestionCard
 												key={question.id}
 												question={question}
-												isAdding={isAdding}
+												isAddingSurvey={isAdding}
+												forceExpanded={question.id === 1 ? true : false}
 												addQuestionForm={this.addQuestionForm}
 											/>
 							    })
@@ -322,7 +324,66 @@ class Questions extends Component {
 						    }
 						    </div>
 					    </div>
-				    : null}
+
+				        : !isFetching ?
+						    <div className="questions-surveys">
+							    <div className="modify-button-wrap">
+							    <Button
+								    disabled={true}
+								    icon="delete"
+								    className="modify-button"
+							    />
+							    <Button
+								    type={'default'}
+								    icon="poweroff"
+								    className="modify-button"
+								    disabled={true}
+							    />
+							    </div>
+							    <Tooltip
+								    placement="bottom"
+								    title='Enter name of your first survey'
+								    visible={true}
+							    >
+								    <Input
+									    value={surveyNameTemporary}
+									    size="large"
+									    className="questions-input questions-input-survey"
+									    onChange={this.handleNameChange}
+								    />
+							    </Tooltip>
+							    <div className="modify-button-wrap">
+								    <Button icon="check" className="modify-button" onClick={this.confirmAddSurvey}/>
+								    <Button icon="close" className="modify-button" disabled={true}/>
+							    </div>
+							    <div className="modify-button-wrap modify-button-wrap-thank-you">
+								    <Tooltip
+									    placement="top"
+									    title='Enter message at the end of the survey'
+									    visible={true}
+								    >
+									    <Input
+										    size="large"
+										    value={thankYouTemporary}
+										    className="questions-input questions-input-thank-you"
+										    onChange={this.handleThankYouChange}
+									    />
+							        </Tooltip>
+							    </div>
+							    <div className="float-right">
+								    <Button
+									    className="modify-button"
+									    icon="export"
+									    disabled={true}
+								    />
+								    <Button
+									    className="modify-button"
+									    icon="message"
+									    disabled={true}
+								    />
+							    </div>
+						    </div> : null
+			        }
 				</div>
 		    </Spin>
         );
