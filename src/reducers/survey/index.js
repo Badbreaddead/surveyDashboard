@@ -4,7 +4,9 @@ import {
 	SAVE_SURVEY,
 	DELETE_SURVEY,
 	CHANGE_SURVEY_STATUS,
-    ADD_SURVEY
+    ADD_SURVEY,
+	EXPORT_GOOGLE,
+	SEND_UNANSWERED
 } from '../../actions/survey';
 
 const initialState = {
@@ -144,6 +146,36 @@ function surveyReducer(state = initialState, action) {
                 isFetching: false,
             });
         }
+		case `${EXPORT_GOOGLE}_PENDING`: {
+			return Object.assign({}, state, {
+				isFetching: true
+			});
+		}
+		case `${EXPORT_GOOGLE}_FULFILLED`: {
+			return Object.assign({}, state, {
+				isFetching: false,
+			});
+		}
+		case `${EXPORT_GOOGLE}_REJECTED`: {
+			return Object.assign({}, state, {
+				isFetching: false,
+			});
+		}
+		case `${SEND_UNANSWERED}_PENDING`: {
+			return Object.assign({}, state, {
+				isFetching: true
+			});
+		}
+		case `${SEND_UNANSWERED}_FULFILLED`: {
+			return Object.assign({}, state, {
+				isFetching: false,
+			});
+		}
+		case `${SEND_UNANSWERED}_REJECTED`: {
+			return Object.assign({}, state, {
+				isFetching: false,
+			});
+		}
 		default:
 			return state;
 	}

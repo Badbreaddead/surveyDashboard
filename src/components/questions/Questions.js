@@ -106,9 +106,15 @@ class Questions extends Component {
 	};
 
 	exportGoogle = () => {
+		const { surveyActions } = this.props;
+
+		surveyActions.exportGoogle();
 	}
 
 	sendUnanswered = () => {
+		const { surveyActions } = this.props;
+
+		surveyActions.sendUnanswered();
 	}
     
     addQuestionForm = (index) => {

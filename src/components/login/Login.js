@@ -18,7 +18,7 @@ class Login extends Component {
         const { getFieldDecorator } = this.props.form;
         return (
 	        <div className="login">
-		        <h1 className="login-title">Survey dashboard</h1>
+		        <h1 className="login-title">Surveys</h1>
 		        <Form onSubmit={this.handleSubmit} className="login-form">
 			        <FormItem>
 				        {getFieldDecorator('userName', {

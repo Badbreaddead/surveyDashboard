@@ -11,6 +11,7 @@ class NavigationComponent extends React.Component {
         const selectedKey = pathname.split('/')[1];
         this.state = {
             mode: 'inline',
+	        collapsed: true,
             selectedKey
         }
     }
@@ -41,15 +42,24 @@ class NavigationComponent extends React.Component {
         browserHistory.push('/');
     };
 
+	onCollapse = (collapsed) => {
+		this.setState({
+			collapsed,
+			mode: collapsed ? 'vertical' : 'inline',
+		});
+	};
+
     render() {
         const {collapsed, selectedKey} = this.state;
         return (
             <Layout>
                 <Sider
-                    width={150}
-                    trigger={null}
+                    width={120}
+                    collapsible
+                    collapsed={collapsed}
+                    onCollapse={this.onCollapse}
                 >
-                    <div className="logo" onClick={this.handleLogo}>{!collapsed? 'Survey Dashboard': <Icon type="home" />}</div>
+                    <div className="logo" onClick={this.handleLogo}>{!collapsed? 'Surveys': <Icon type="home" />}</div>
                     <Menu
                         mode={this.state.mode}
                         onClick={this.handleMenu}
@@ -57,16 +67,20 @@ class NavigationComponent extends React.Component {
                         className="menu"
                     >
                         <Menu.Item className={selectedKey === '' ? 'menu-item menu-item-active' : 'menu-item'} key="questions">
-                          <span>
-                            <Icon type="question-circle-o" />
-                            <span>Questions</span>
-                          </span>
+							<span>
+								<Icon type="question-circle-o" />
+								{!collapsed ?
+									<span>Questions</span>
+								: null}
+							</span>
                         </Menu.Item>
                         <Menu.Item className="menu-item" key="logout">
-                          <span>
-                            <Icon type="logout" />
-                            <span>Logout</span>
-                          </span>
+							<span>
+								<Icon type="logout" />
+								{!collapsed ?
+									<span>Logout</span>
+								: null}
+							</span>
                         </Menu.Item>
                     </Menu>
                 </Sider>
