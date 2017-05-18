@@ -13,6 +13,7 @@ import {
 
 const initialState = {
 	isFetching: false,
+	isAddingQuestion: false,
 	questions: [],
 	order: [],
 	initQuestions: [],
@@ -105,7 +106,8 @@ function questionReducer(state = initialState, action) {
 			}
 
 			return Object.assign({}, state, {
-				questions
+				questions,
+				isAddingQuestion: false,
 			});
 		}
 		case `${REMOVE_QUESTIONS}`: {
@@ -156,6 +158,7 @@ function questionReducer(state = initialState, action) {
 
 			return Object.assign({}, state, {
 				isFetching: false,
+				isAddingQuestion: false,
 				questions,
 				initQuestions: questions
 			});
@@ -179,7 +182,8 @@ function questionReducer(state = initialState, action) {
 			}
 			
 			return Object.assign({}, state, {
-				questions
+				questions,
+				isAddingQuestion: true,
 			});
 		}
         

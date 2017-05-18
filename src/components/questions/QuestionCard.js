@@ -182,7 +182,7 @@ class QuestionCard extends Component {
 
     render() {
 	    const { isEditing, isExpanded, onHover } = this.state;
-	    const { question, isAddingSurvey, forceExpanded } = this.props;
+	    const { question, isAddingSurvey, forceExpanded, isAddingQuestion } = this.props;
 	    let questionType;
 
 	    if (question.type === 'own') {
@@ -235,6 +235,7 @@ class QuestionCard extends Component {
 						        icon="edit"
 						        className="card-edit-button"
 						        onClick={this.editCard}
+						        disabled={isAddingQuestion}
 					        />
 					        <Popconfirm title="Delete this question?"
 					                    onConfirm={this.deleteCard}
@@ -245,11 +246,12 @@ class QuestionCard extends Component {
 						            icon="delete"
 						            className="card-delete-button"
 						            onClick={this.handleDeleteCard}
+					                disabled={isAddingQuestion}
 					            />
 					        </Popconfirm>
 		                </div>}
 		        </div> : null}
-		        {onHover ?
+		        {onHover && !isAddingQuestion ?
 			        <div>
 				        <div className="card-up-down-wrapper">
 					        <Button
@@ -276,7 +278,7 @@ class QuestionCard extends Component {
 				        />
 			        </div>
 		            : null}
-		        {isExpanded || forceExpanded ?
+		        {(isExpanded || forceExpanded) && !isAddingSurvey ?
 			        <div className="answers-wrapper">
 				        {question.answers.map((answer, i) => (
 							<QuestionCardAnswer
@@ -302,6 +304,7 @@ class QuestionCard extends Component {
 
 const mapStateToProps = (state) => ({
 	order: state.question.order,
+	isAddingQuestion: state.question.isAddingQuestion,
 });
 
 const mapDispatchToProps = (dispatch) => ({
