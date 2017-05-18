@@ -115,7 +115,8 @@ function questionReducer(state = initialState, action) {
 
 			return Object.assign({}, state, {
 				questions,
-				initQuestions: questions
+				initQuestions: questions,
+				order: [],
 			});
 		}
 		case `${SAVE_QUESTION}_PENDING`: {

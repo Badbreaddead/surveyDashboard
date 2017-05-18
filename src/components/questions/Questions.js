@@ -31,7 +31,7 @@ class Questions extends Component {
 	deleteSurvey = () => {
 		const { surveyActions, currentSurvey } = this.props;
 
-		surveyActions.deleteSurvey(currentSurvey, () => {this.setState({ isDeleting: true })});
+		surveyActions.deleteSurvey(currentSurvey);
 	};
 
 	handleActivation = () => {
@@ -187,13 +187,13 @@ class Questions extends Component {
 								    />
 							        :
 								    <Select
-									    value={currentSurvey.id}
+									    value={currentSurvey.name}
 									    size="large"
 									    className="questions-select"
 								        onChange={this.handleSelectChange}
 								    >
-									    {surveys.map(survey => {
-										    return <Option value={survey.id} key={survey.id}>{survey.name}</Option>
+									    {surveys.map((survey, i) => {
+										    return <Option value={survey.id} key={i}>{survey.name}</Option>
 									    })}
 								    </Select>
 							    }
