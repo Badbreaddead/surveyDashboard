@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Input, Select, Button, Popconfirm } from 'antd';
+import { Row, Col, Input, Select, Button, Popconfirm } from 'antd';
 
 import QuestionCardAnswer from './QuestionCardAnswer';
 import QuestionCardDefaultAnswer from './QuestionCardDefaultAnswer';
@@ -201,55 +201,73 @@ class QuestionCard extends Component {
 		             onMouseEnter={this.onMouseEnterHandler}
 		             onMouseLeave={this.onMouseLeaveHandler}
 		        >
-			        <p className="card-text">{question.index}</p>
 			        {isEditing || question.isNew ?
-				        <div className="card-edit-wrapper">
-					        <Input
-						        size="large"
-						        value={question.question}
-						        className="card-edit-question"
-						        onChange={this.handleInputChange}
-					        />
+				        <Row>
+					        <Col xs={{ span: 1 }}>
+						        <p className="card-text card-text-index">{question.index}</p>
+					        </Col>
+					        <Col xs={{ span: 18, offset: 1 }} sm={{ span: 10, offset: 0 }}>
+						        <Input
+							        size="large"
+							        value={question.question}
+							        className="card-edit-question"
+							        onChange={this.handleInputChange}
+						        />
+					        </Col>
 					        {question.isNew ?
-							<Select
-								size="large"
-								defaultValue={question.type}
-								onChange={this.handleSelectChange}
-								className="card-edit-questionType"
-							>
-								<Option value="own">Own answer</Option>
-								<Option value="options">Options</Option>
-								<Option value="ownAndOptions">Own answer and options</Option>
-							</Select>
+						        <Col xs={{ span: 14 }} sm={{ span: 7 }}>
+									<Select
+										size="large"
+										defaultValue={question.type}
+										onChange={this.handleSelectChange}
+										className="card-edit-questionType"
+									>
+										<Option value="own">Own answer</Option>
+										<Option value="options">Options</Option>
+										<Option value="ownAndOptions">Own answer and options</Option>
+									</Select>
+						        </Col>
 								:
-						        <p className="card-text card-text-questionType">{questionType}</p>}
-							<Button icon="check" className="card-edit-button" onClick={this.saveCard}/>
-							<Button icon="close" className="card-edit-button" onClick={this.cancelEditCard}/>
-				        </div>
+						        <Col xs={{ span: 14 }} sm={{ span: 7 }}>
+						            <p className="card-text card-text-questionType">{questionType}</p>
+						        </Col>}
+					        <Col xs={{ span: 10 }} sm={{ span: 4 }}>
+								<Button icon="check" className="card-edit-button" onClick={this.saveCard}/>
+								<Button icon="close" className="card-edit-button" onClick={this.cancelEditCard}/>
+					        </Col>
+				        </Row>
 			            :
-				        <div className="card-edit-wrapper">
-				            <p className="card-text card-text-question">{question.question}</p>
-							<p className="card-text card-text-questionType">{questionType}</p>
-
-					        <Button
-						        icon="edit"
-						        className="card-edit-button"
-						        onClick={this.editCard}
-						        disabled={isAddingQuestion}
-					        />
-					        <Popconfirm title="Delete this question?"
-					                    onConfirm={this.deleteCard}
-					                    okText="Yes"
-					                    cancelText="No"
-					        >
-					            <Button
-						            icon="delete"
-						            className="card-delete-button"
-						            onClick={this.handleDeleteCard}
-					                disabled={isAddingQuestion}
-					            />
-					        </Popconfirm>
-		                </div>}
+				        <Row>
+					        <Col xs={{ span: 1 }}>
+						        <p className="card-text card-text-index">{question.index}</p>
+					        </Col>
+					        <Col xs={{ span: 18, offset: 1 }} sm={{ span: 10, offset: 0 }}>
+				                <p className="card-text card-text-question">{question.question}</p>
+					        </Col>
+					        <Col xs={{ span: 14 }} sm={{ span: 7 }}>
+								<p className="card-text card-text-questionType">{questionType}</p>
+					        </Col>
+					        <Col xs={{ span: 10 }} sm={{ span: 4 }}>
+						        <Button
+							        icon="edit"
+							        className="card-edit-button"
+							        onClick={this.editCard}
+							        disabled={isAddingQuestion}
+						        />
+						        <Popconfirm title="Delete this question?"
+						                    onConfirm={this.deleteCard}
+						                    okText="Yes"
+						                    cancelText="No"
+						        >
+						            <Button
+							            icon="delete"
+							            className="card-delete-button"
+							            onClick={this.handleDeleteCard}
+						                disabled={isAddingQuestion}
+						            />
+						        </Popconfirm>
+					        </Col>
+		                </Row>}
 		        </div> : null}
 		        {onHover && !isAddingQuestion ?
 			        <div>
@@ -268,14 +286,14 @@ class QuestionCard extends Component {
 						        onMouseEnter={this.onMouseEnterHandler}
 						        onMouseLeave={this.onMouseLeaveHandler}
 					        />
+					        <Button
+						        className="card-add-button"
+						        icon="plus"
+						        onClick={this.addCard}
+						        onMouseEnter={this.onMouseEnterHandler}
+						        onMouseLeave={this.onMouseLeaveHandler}
+					        />
 				        </div>
-				        <Button
-					        className="card-add-button"
-					        icon="plus"
-					        onClick={this.addCard}
-					        onMouseEnter={this.onMouseEnterHandler}
-					        onMouseLeave={this.onMouseLeaveHandler}
-				        />
 			        </div>
 		            : null}
 		        {(isExpanded || forceExpanded) && !isAddingSurvey ?
