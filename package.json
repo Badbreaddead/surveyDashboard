@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "Dashboard for surveys",
   "author": "Petr Ryabinn",
+  "engines": {
+    "node": "6.0.0"
+  },
   "scripts": {
     "clean": "rimraf dist/",
-    "build": "webpack --config webpack.production.config.js --progress --profile --colors --display-error-details",
+    "build": "cross-env NODE_ENV=production webpack --config webpack.production.config.js --progress --profile --colors --display-error-details",
     "dev": "babel-node server.js",
     "lint": "eslint js/**",
     "postinstall": "npm run build",
