@@ -1,6 +1,11 @@
 import React, {Component, PropTypes} from 'react';
 import { browserHistory } from 'react-router'
+import {connect} from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { Layout, Menu, Icon } from 'antd';
+
+import UserActions from '../../actions/user';
+
 const { Sider } = Layout;
 
 
@@ -25,13 +30,15 @@ class NavigationComponent extends React.Component {
     };
 
     handleMenu = (e) => {
-        switch (e.key) {
+	    const { userActions } = this.props;
+
+	    switch (e.key) {
             case 'questions': {
                 browserHistory.push('/');
                 break;
             }
             case 'logout': {
-                browserHistory.push('/login');
+	            userActions.logout();
                 break;
             }
         }
@@ -82,6 +89,22 @@ class NavigationComponent extends React.Component {
 								: null}
 							</span>
                         </Menu.Item>
+	                    <Menu.Item className="menu-item">
+							<a href="https://web.telegram.org/#/im?p=@CoinSurveydevbot" target="_blanc">
+								<Icon type="shake" />
+								{!collapsed ?
+									<span>Telegram bot</span>
+									: null}
+							</a>
+	                    </Menu.Item>
+	                    <Menu.Item className="menu-item">
+		                    <a href="https://docs.google.com/spreadsheets/d/1TAidjIed5goBfdtIk81L955tSx-zyChioCHT2VzkdBg/edit#gid=0" target="_blanc">
+			                    <Icon type="solution" />
+			                    {!collapsed ?
+				                    <span>Spreadsheet</span>
+				                    : null}
+		                    </a>
+	                    </Menu.Item>
                     </Menu>
                 </Sider>
                 <Layout>
@@ -96,4 +119,11 @@ class NavigationComponent extends React.Component {
     }
 }
 
-export default NavigationComponent;
+const mapStateToProps = (state) => ({
+});
+
+const mapDispatchToProps = (dispatch) => ({
+	userActions: bindActionCreators(new UserActions, dispatch),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(NavigationComponent);

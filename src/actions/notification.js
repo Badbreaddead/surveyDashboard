@@ -5,8 +5,5 @@ export const openNotification = (type, message, description) => {
         message,
         description,
         duration: 3,
-	    style: {
-		    width: 200,
-	    }
     });
 };
