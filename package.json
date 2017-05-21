@@ -1,11 +1,8 @@
 {
-  "name": "ticketchain_frontend",
+  "name": "surveys",
   "version": "1.0.0",
-  "description": "ticketchain_frontend",
+  "description": "Dashboard for surveys",
   "author": "Petr Ryabinn",
-  "engines": {
-    "node": "6.0.0"
-  },
   "scripts": {
     "clean": "rimraf dist/",
     "build": "cross-env NODE_ENV=production webpack --config webpack.production.config.js --progress --profile --colors --display-error-details",
