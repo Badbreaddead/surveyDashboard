@@ -12,7 +12,7 @@
     "dev": "babel-node server.js",
     "lint": "eslint js/**",
     "postinstall": "npm run build",
-    "start": "node server.production"
+    "start": "node server.production.js"
   },
   "dependencies": {
     "antd": "^2.7.0",
