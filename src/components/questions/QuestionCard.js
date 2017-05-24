@@ -306,7 +306,7 @@ class QuestionCard extends Component {
 								isEditing={isEditing}
 							/>
 						))}
-				        {question.type === 'ownAndOptions' || question.type === 'own' ?
+				        {question.type === 'ownAndOptions' ?
 				        <QuestionCardDefaultAnswer
 					        key={question.id}
 					        question={question}
