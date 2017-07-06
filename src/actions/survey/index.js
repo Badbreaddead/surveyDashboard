@@ -13,7 +13,8 @@ export const CHOOSE_SURVEY = 'CHOOSE_SURVEY';
 export const SAVE_SURVEY = 'SAVE_SURVEY';
 export const ADD_SURVEY = 'ADD_SURVEY';
 export const DELETE_SURVEY = 'DELETE_SURVEY';
-export const CHANGE_SURVEY_STATUS = 'CHANGE_SURVEY_STATUS';
+export const CHANGE_SURVEY_FACEBOOK_STATUS = 'CHANGE_SURVEY_FACEBOOK_STATUS';
+export const CHANGE_SURVEY_TELEGRAM_STATUS = 'CHANGE_SURVEY_TELEGRAM_STATUS';
 
 export default class SurveysActions {
 
@@ -110,11 +111,11 @@ export default class SurveysActions {
 		};
 	};
 
-	changeSurveyStatus = (changingSurvey) => {
+	changeFacebookSurveyStatus = (changingSurvey) => {
 		let isError = false;
 		return dispatch => {
-			dispatch({type: `${CHANGE_SURVEY_STATUS}_PENDING`});
-			fetch(`${config.baseUrl}surveys/activate`,
+			dispatch({type: `${CHANGE_SURVEY_FACEBOOK_STATUS}_PENDING`});
+			fetch(`${config.baseUrl}surveys/activate-facebook`,
 				{ method: 'PUT',
 					headers: getHeaders(),
 					body: JSON.stringify(changingSurvey)
@@ -122,24 +123,55 @@ export default class SurveysActions {
 				.then(response => {
 					if (response.status >= 400) {
 						isError = true;
-						dispatch({type: `${CHANGE_SURVEY_STATUS}_REJECTED`});
+						dispatch({type: `${CHANGE_SURVEY_FACEBOOK_STATUS}_REJECTED`});
 					}
 					return response.json();
 				})
 				.then(json => {
 					if (!isError) {
-						dispatch({type: `${CHANGE_SURVEY_STATUS}_FULFILLED`, payload: changingSurvey});
+						dispatch({type: `${CHANGE_SURVEY_FACEBOOK_STATUS}_FULFILLED`, payload: changingSurvey});
 						openNotification('success', json.msg);
 					} else {
 						openNotification('error', json.err);
 					}
 				})
 				.catch(e => {
-					dispatch({type: `${CHANGE_SURVEY_STATUS}_REJECTED`});
+					dispatch({type: `${CHANGE_SURVEY_FACEBOOK_STATUS}_REJECTED`});
 					openNotification('error', e.message);
 				});
 		};
 	};
+
+  changeTelegramSurveyStatus = (changingSurvey) => {
+    let isError = false;
+    return dispatch => {
+      dispatch({type: `${CHANGE_SURVEY_TELEGRAM_STATUS}_PENDING`});
+      fetch(`${config.baseUrl}surveys/activate-telegram`,
+        { method: 'PUT',
+          headers: getHeaders(),
+          body: JSON.stringify(changingSurvey)
+        })
+        .then(response => {
+          if (response.status >= 400) {
+            isError = true;
+            dispatch({type: `${CHANGE_SURVEY_TELEGRAM_STATUS}_REJECTED`});
+          }
+          return response.json();
+        })
+        .then(json => {
+          if (!isError) {
+            dispatch({type: `${CHANGE_SURVEY_TELEGRAM_STATUS}_FULFILLED`, payload: changingSurvey});
+            openNotification('success', json.msg);
+          } else {
+            openNotification('error', json.err);
+          }
+        })
+        .catch(e => {
+          dispatch({type: `${CHANGE_SURVEY_TELEGRAM_STATUS}_REJECTED`});
+          openNotification('error', e.message);
+        });
+    };
+  };
 
 	addSurvey = (newSurvey, callback) => {
 		let isError = false;

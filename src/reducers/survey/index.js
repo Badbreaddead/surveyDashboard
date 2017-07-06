@@ -3,8 +3,9 @@ import {
 	CHOOSE_SURVEY,
 	SAVE_SURVEY,
 	DELETE_SURVEY,
-	CHANGE_SURVEY_STATUS,
-    ADD_SURVEY
+  CHANGE_SURVEY_TELEGRAM_STATUS,
+  CHANGE_SURVEY_FACEBOOK_STATUS,
+	ADD_SURVEY
 } from '../../actions/survey';
 
 const initialState = {
@@ -90,12 +91,12 @@ function surveyReducer(state = initialState, action) {
 				isFetching: false,
 			});
 		}
-		case `${CHANGE_SURVEY_STATUS}_PENDING`: {
+		case `${CHANGE_SURVEY_TELEGRAM_STATUS}_PENDING`: {
 			return Object.assign({}, state, {
 				isFetching: true
 			});
 		}
-		case `${CHANGE_SURVEY_STATUS}_FULFILLED`: {
+		case `${CHANGE_SURVEY_TELEGRAM_STATUS}_FULFILLED`: {
 			let surveys = [...state.surveys];
 			let currentSurvey = Object.assign({}, state.currentSurvey);
 			let index;
@@ -105,8 +106,8 @@ function surveyReducer(state = initialState, action) {
 					index = i;
 				}
 			});
-			surveys[index].isActive = action.payload.isActive;
-			currentSurvey.isActive = action.payload.isActive;
+			surveys[index].isActiveTelegram = action.payload.isActiveTelegram;
+			currentSurvey.isActiveTelegram = action.payload.isActiveTelegram;
 
 			return Object.assign({}, state, {
 				isFetching: false,
@@ -114,12 +115,42 @@ function surveyReducer(state = initialState, action) {
 				surveys,
 			});
 		}
-		case `${CHANGE_SURVEY_STATUS}_REJECTED`: {
+		case `${CHANGE_SURVEY_TELEGRAM_STATUS}_REJECTED`: {
 			return Object.assign({}, state, {
 				isFetching: false,
 			});
 		}
-        
+    
+    case `${CHANGE_SURVEY_FACEBOOK_STATUS}_PENDING`: {
+      return Object.assign({}, state, {
+        isFetching: true
+      });
+    }
+    case `${CHANGE_SURVEY_FACEBOOK_STATUS}_FULFILLED`: {
+      let surveys = [...state.surveys];
+      let currentSurvey = Object.assign({}, state.currentSurvey);
+      let index;
+      
+      surveys.forEach((survey, i) => {
+        if (survey.id === action.payload.id) {
+          index = i;
+        }
+      });
+      surveys[index].isActiveFacebook = action.payload.isActiveFacebook;
+      currentSurvey.isActiveFacebook = action.payload.isActiveFacebook;
+      
+      return Object.assign({}, state, {
+        isFetching: false,
+        currentSurvey,
+        surveys,
+      });
+    }
+    case `${CHANGE_SURVEY_FACEBOOK_STATUS}_REJECTED`: {
+      return Object.assign({}, state, {
+        isFetching: false,
+      });
+    }
+
         case `${ADD_SURVEY}_PENDING`: {
             return Object.assign({}, state, {
                 isFetching: true

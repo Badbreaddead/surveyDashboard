@@ -168,7 +168,6 @@ function questionReducer(state = initialState, action) {
 		case `${ADD_QUESTION_FORM}`: {
 			let questions = [...state.questions];
 			const question = action.payload;
-			debugger
 			if (question.id === 2) {
                 questions.push(question);
 			} else {

@@ -33,16 +33,26 @@ class Questions extends Component {
 
 		surveyActions.deleteSurvey(currentSurvey, () => {this.setState({ isDeleting: true })});
 	};
-
-	handleActivation = () => {
+  
+  handleActivationTelegram = () => {
 		const { surveyActions, currentSurvey } = this.props;
 		const request = {
 			id: currentSurvey.id,
-			isActive: !currentSurvey.isActive,
+      isActiveTelegram: !currentSurvey.isActiveTelegram,
 		};
 
-		surveyActions.changeSurveyStatus(request);
+		surveyActions.changeTelegramSurveyStatus(request);
 	};
+  
+  handleActivationFacebook = () => {
+    const { surveyActions, currentSurvey } = this.props;
+    const request = {
+      id: currentSurvey.id,
+      isActiveFacebook: !currentSurvey.isActiveFacebook,
+    };
+    
+    surveyActions.changeFacebookSurveyStatus(request);
+  };
 
 	handleSelectChange = (id) => {
 		const { surveyActions, questionActions, surveys } = this.props;
@@ -170,13 +180,27 @@ class Questions extends Component {
 									    mouseEnterDelay={1}
 								    >
 									    <Button
-										    type={currentSurvey.isActive ? 'primary' : 'default'}
-										    icon="poweroff"
+										    type={currentSurvey.isActiveTelegram ? 'primary' : 'default'}
 										    className="modify-button"
-										    onClick={this.handleActivation}
+										    onClick={this.handleActivationTelegram}
 										    disabled={isAdding}
-									    />
+									    > T
+											</Button>
+											
 								    </Tooltip>
+										<Tooltip
+											placement="topLeft"
+											title='If BLUE the survey is active'
+											mouseEnterDelay={1}
+										>
+											<Button
+												type={currentSurvey.isActiveFacebook ? 'primary' : 'default'}
+												className="modify-button"
+												onClick={this.handleActivationFacebook}
+												disabled={isAdding}
+											> F
+											</Button>
+										</Tooltip>
 							    </div>
 							    {isAdding || isEditing ?
 								    <Input
