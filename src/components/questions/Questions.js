@@ -186,7 +186,6 @@ class Questions extends Component {
 								    >
 									    <Button
 										    type={currentSurvey.isActiveTelegram ? 'primary' : 'default'}
-										    icon="poweroff"
 										    className="modify-button"
 										    onClick={this.handleActivationTelegram}
 										    disabled={isAdding}
