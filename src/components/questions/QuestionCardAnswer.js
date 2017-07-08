@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from 'react';
-import { Input, Select, Button } from 'antd';
+import { Row, Col, Input, Select, Button } from 'antd';
 import {connect} from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -133,23 +133,32 @@ class QuestionCardAnswers extends Component {
 	    return (
 	        <div className="card-answer">
 		        <div onMouseEnter={this.onMouseEnterHandler} onMouseLeave={this.onMouseLeaveHandler}>
-					<p className="card-text card-text-index">{answer.id}</p>
 			        {isEditing || question.isNew ?
-				        <div className="card-answer-wrapper">
-					        <Input
-						        size="large"
-						        value={answer.text}
-					            className="card-edit-answer"
-					            onChange={this.handleInputChange}
-					        />
-					        <div className="modify-button-wrap">
+				        <Row className="card-answer-wrapper">
+					        <Col xs={{ span: 2 }} sm={{ span: 1 }}>
+					            <p className="card-text card-text-index">{answer.id}</p>
+					        </Col>
+					        <Col xs={{ span: 12 }} sm={{ span: 15 }}>
+						        <Input
+							        size="large"
+							        value={answer.text}
+						            className="card-edit-answer"
+						            onChange={this.handleInputChange}
+						        />
+					        </Col>
+					        <Col xs={{ span: 2 }} sm={{ span: 2 }} className="modify-button-wrap">
 						        <Button icon="delete" className="card-delete-button" onClick={this.deleteCardAnswers}/>
-					        </div>
-				        </div>
+					        </Col>
+				        </Row>
 			            :
-				        <div className="card-answer-wrapper">
-				            <p className="card-text card-text-answer">{answer.text}</p>
-				        </div>
+				        <Row className="card-answer-wrapper">
+					        <Col xs={{ span: 2 }} sm={{ span: 1 }}>
+					            <p className="card-text card-text-index">{answer.id}</p>
+					        </Col>
+					        <Col xs={{ span: 12 }} sm={{ span: 15 }}>
+				                    <p className="card-text card-text-answer">{answer.text}</p>
+					        </Col>
+				        </Row>
 			        }
 		        </div>
 		        {onHover &&  (isEditing || question.isNew) ?
@@ -169,14 +178,14 @@ class QuestionCardAnswers extends Component {
 						        onMouseEnter={this.onMouseEnterHandler}
 						        onMouseLeave={this.onMouseLeaveHandler}
 					        />
+					        <Button
+						        className="card-add-button card-add-button-answer"
+						        icon="plus"
+						        onClick={this.addAnswer}
+						        onMouseEnter={this.onMouseEnterHandler}
+						        onMouseLeave={this.onMouseLeaveHandler}
+					        />
 				        </div>
-				        <Button
-					        className="card-add-button card-add-button-answer"
-					        icon="plus"
-					        onClick={this.addAnswer}
-					        onMouseEnter={this.onMouseEnterHandler}
-					        onMouseLeave={this.onMouseLeaveHandler}
-				        />
 			        </div>
 			        : null}
 	        </div>

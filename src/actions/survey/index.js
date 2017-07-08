@@ -13,6 +13,8 @@ export const CHOOSE_SURVEY = 'CHOOSE_SURVEY';
 export const SAVE_SURVEY = 'SAVE_SURVEY';
 export const ADD_SURVEY = 'ADD_SURVEY';
 export const DELETE_SURVEY = 'DELETE_SURVEY';
+export const EXPORT_GOOGLE = 'EXPORT_GOOGLE';
+export const SEND_UNANSWERED = 'SEND_UNANSWERED';
 export const CHANGE_SURVEY_FACEBOOK_STATUS = 'CHANGE_SURVEY_FACEBOOK_STATUS';
 export const CHANGE_SURVEY_TELEGRAM_STATUS = 'CHANGE_SURVEY_TELEGRAM_STATUS';
 
@@ -235,6 +237,66 @@ export default class SurveysActions {
 				})
 				.catch(e => {
 					dispatch({type: `${DELETE_SURVEY}_REJECTED`});
+					openNotification('error', e.message);
+				});
+		};
+	};
+
+	exportGoogle = () => {
+		let isError = false;
+		return dispatch => {
+			dispatch({type: `${EXPORT_GOOGLE}_PENDING`});
+			fetch(`${config.baseUrl}surveys/google`,
+				{ method: 'GET',
+					headers: getHeaders(),
+				})
+				.then(response => {
+					if (response.status >= 400) {
+						isError = true;
+						dispatch({type: `${EXPORT_GOOGLE}_REJECTED`});
+					}
+					return response.json();
+				})
+				.then(json => {
+					if (!isError) {
+						dispatch({type: `${EXPORT_GOOGLE}_FULFILLED`});
+						openNotification('success', json.msg);
+					} else {
+						openNotification('error', json.err);
+					}
+				})
+				.catch(e => {
+					dispatch({type: `${EXPORT_GOOGLE}_REJECTED`});
+					openNotification('error', e.message);
+				});
+		};
+	};
+
+	sendUnanswered = () => {
+		let isError = false;
+		return dispatch => {
+			dispatch({type: `${SEND_UNANSWERED}_PENDING`});
+			fetch(`${config.baseUrl}surveys/no-answers`,
+				{ method: 'GET',
+					headers: getHeaders(),
+				})
+				.then(response => {
+					if (response.status >= 400) {
+						isError = true;
+						dispatch({type: `${SEND_UNANSWERED}_REJECTED`});
+					}
+					return response.json();
+				})
+				.then(json => {
+					if (!isError) {
+						dispatch({type: `${SEND_UNANSWERED}_FULFILLED`});
+						openNotification('success', json.msg);
+					} else {
+						openNotification('error', json.err);
+					}
+				})
+				.catch(e => {
+					dispatch({type: `${SEND_UNANSWERED}_REJECTED`});
 					openNotification('error', e.message);
 				});
 		};

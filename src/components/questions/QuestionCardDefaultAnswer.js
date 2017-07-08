@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from 'react';
-import { Input, Select, Button } from 'antd';
+import { Row, Col, Input, Select, Button } from 'antd';
 import {connect} from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -23,23 +23,30 @@ class QuestionCardAnswers extends Component {
 
 	    return (
 	        <div className="card-answer">
-		        <div>
-					<p className="card-text card-text-own">Own</p>
-			        {isEditing || question.isNew ?
-				        <div className="card-answer-wrapper">
+		        {isEditing || question.isNew ?
+			        <div className="card-answer-wrapper">
+				        <Col xs={{ span: 3 }} sm={{ span: 2 }}>
+					        <p className="card-text  card-text-index">Own</p>
+				        </Col>
+				        <Col xs={{ span: 14 }} sm={{ span: 14 }}>
 					        <Input
 						        size="large"
 						        value={answer.text}
-					            className="card-edit-answer-own"
+					            className="card-edit-answer"
 					            onChange={this.handleInputChange}
 					        />
-				        </div>
-			            :
-				        <div className="card-answer-wrapper card-answer-wrapper-own">
-				            <p className="card-text card-text-answer card-text-answer-own">{answer.text}</p>
-				        </div>
-			        }
-		        </div>
+				        </Col>
+			        </div>
+		            :
+			        <div className="card-answer-wrapper card-answer-wrapper-own">
+				        <Col xs={{ span: 3 }} sm={{ span: 2 }}>
+					        <p className="card-text  card-text-index">Own</p>
+				        </Col>
+				        <Col xs={{ span: 14 }} sm={{ span: 14 }}>
+			                <p className="card-text card-text-answer card-text-answer-own">{answer.text}</p>
+				        </Col>
+			        </div>
+		        }
 	        </div>
         );
     }

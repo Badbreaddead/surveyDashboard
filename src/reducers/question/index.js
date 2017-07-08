@@ -13,6 +13,7 @@ import {
 
 const initialState = {
 	isFetching: false,
+	isAddingQuestion: false,
 	questions: [],
 	order: [],
 	initQuestions: [],
@@ -105,7 +106,8 @@ function questionReducer(state = initialState, action) {
 			}
 
 			return Object.assign({}, state, {
-				questions
+				questions,
+				isAddingQuestion: false,
 			});
 		}
 		case `${REMOVE_QUESTIONS}`: {
@@ -113,7 +115,8 @@ function questionReducer(state = initialState, action) {
 
 			return Object.assign({}, state, {
 				questions,
-				initQuestions: questions
+				initQuestions: questions,
+				order: [],
 			});
 		}
 		case `${SAVE_QUESTION}_PENDING`: {
@@ -156,6 +159,7 @@ function questionReducer(state = initialState, action) {
 
 			return Object.assign({}, state, {
 				isFetching: false,
+				isAddingQuestion: false,
 				questions,
 				initQuestions: questions
 			});
@@ -168,6 +172,7 @@ function questionReducer(state = initialState, action) {
 		case `${ADD_QUESTION_FORM}`: {
 			let questions = [...state.questions];
 			const question = action.payload;
+
 			if (question.id === 2) {
                 questions.push(question);
 			} else {
@@ -178,7 +183,8 @@ function questionReducer(state = initialState, action) {
 			}
 			
 			return Object.assign({}, state, {
-				questions
+				questions,
+				isAddingQuestion: true,
 			});
 		}
         
