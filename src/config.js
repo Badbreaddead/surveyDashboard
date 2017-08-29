@@ -1,5 +1,5 @@
 export default {
   // baseUrl: 'http://localhost:5000/'
   // baseUrl: 'https://farzad-bot-api.herokuapp.com/'
-  baseUrl: 'https://coinsurvey.me:80/'
+  baseUrl: 'https://coinsurvey.me/'
 };
